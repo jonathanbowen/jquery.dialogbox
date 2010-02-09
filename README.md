@@ -71,7 +71,7 @@ Alternatively, a function can be supplied as the first argument to return the re
 
 In this example, we attach alert dialogs to links to anchors within the page:
 
-#HTML:
+### HTML:
 	<p>
 		Doctor Cuddles pet shop sells <a href="#info-dachshunds">dachshunds</a>, <a href="#info-kittens">kittens</a> and <a href="#info-bunnies">bunny rabbits</a>.</p>
 	</p>
@@ -85,7 +85,7 @@ In this example, we attach alert dialogs to links to anchors within the page:
 		Rabbits are small mammals in the family Leporidae (more information on <a href="http://en.wikipedia.org/wiki/Rabbit">wikipedia</a>).
 	</p>
 
-#Javascript:
+### Javascript:
 
     // hide all information paragraphs    
     $('*[id^=info-]').hide();

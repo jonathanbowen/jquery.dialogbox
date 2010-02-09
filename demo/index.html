@@ -334,8 +334,12 @@
         <img style="cursor: pointer;" src="box-sample.png" alt="Example dialog box" title="Example box - click for demo" width="266" height="167" />
         Dialogbox is a jQuery plugin for creating custom dialog boxes that float on top of a web page and respond dynamically to user interaction.
     </p>
-    <p>Boxes fade into the page and add a semi-transparent mask on top of the rest of the page like a lightbox; however this is primarily a tool for managing user interaction with minimal coding, rather than a content viewer.</p>
-
+    
+    <p>
+        The boxes are designed to emulate the standard javasript dialogs, but with many more options to configure content, 
+        behaviour and handling of user data, a slew of methods for reacting to user input, 
+        and without the clunkiness and annoyance of regular js dialogs.
+    </p>
     
     <div id="toc">
         <div>
@@ -1027,7 +1031,7 @@ $(window).dialogbox({
         <div class="function-info"><div>
         <p>Encode all form fields within the box as a string for submission. Basically returns the jQuery function 
         <a href="http://api.jquery.com/serialize/">serialize()</a> on the box form.</p>
-        <h4>Return values</h4>
+        <h4>Returns</h4>
         <p>A string of form fields - see the jQuery documentation for more information.</p>
         </div></div>
     </li>
@@ -1036,7 +1040,7 @@ $(window).dialogbox({
         <h3 id="function-exists">isOpen()</h3>
         <div class="function-info"><div>
         <p>Checks whether there's currently a box in the page.</p>
-        <h4>Return values</h4>
+        <h4>Returns</h4>
         <p>Boolean true if there is a box, false otherwise.</p>
         </div></div>
     </li>
@@ -1050,7 +1054,7 @@ $(window).dialogbox({
     <p>If a single arguement is used, this can be an object of key/value pairs of options to be set, or an option name
     to retrieve the value of that option. Options are the same as for <a href="#function-open">$.fn.dialogbox.open()</a>.</p>
     <p>Alternatively, a key/value pair can be passed to change a single option.</p>
-    <h4>Return values</h4>
+    <h4>Returns</h4>
     <p>If getting, the value of the selected option, or a key/value object of all
     options. If setting, returns $.fn.dialogbox.</p>
     </div></div>

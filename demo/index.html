@@ -48,11 +48,17 @@
     p {
         margin: .6em 0;
     }
+    #features-list li {
+        background: url(star.png) 15px 1px no-repeat;
+        padding-left: 40px;
+    }
     li {
         margin: .5em 0;
     }
     ul {
         margin: .5em 0;
+        list-style-type: none;
+        padding: 0;
     }
     *:first-child {
         margin-top: 0;
@@ -172,15 +178,26 @@
     #container .slide-list li > div div p:first-child {
       padding: 10px 0 0;
     }
-    .example p a, a#totop, .slide-list h3 a {
+    .example p a, .slide-list h3 a {
         padding: 3px 5px;
     }
-    .example a:hover, a#totop:hover, .slide-list h3 a:hover {
+    .slide-list h3 a, .slide-list h3 a:active {
+        padding: 3px 5px 3px 20px;
+        color: #398cbf;
+        background: url(collapsed.png) left center no-repeat;
+    }
+    .slide-list h3 a:hover {
+        text-decoration: underline;
+    }
+    .slide-list h3 a.expanded {
+        background: url(expanded.png) left center no-repeat;
+    }
+    .example a:hover {
         background-color: #398cbf;
         color: #fff;
         opacity: 1;
     }
-    p a:active, li a:active, .example p a:active, a#totop:active, .slide-list h3 a:active {    
+    p a:active, li a:active, .example p a:active {    
         background-color: #39bf42;
         opacity: 1;
     }
@@ -188,7 +205,16 @@
         text-align: right;
     }
     .expanders a {
-        margin-left: .5em;
+        margin-left: .8em;
+        padding-left: 19px;
+        background-repeat: no-repeat;
+        background-position: 0 50%;
+    }
+    .expand-all {
+        background-image: url(toggle.png);
+    }
+    .collapse-all {
+        background-image: url(toggle_collapse.png);
     }
     .slide {
         position: absolute;
@@ -202,7 +228,7 @@
         background: #e1f2fd;
         -moz-border-radius: 5px;
         -webkit-border-radius: 5px;
-        margin-bottom: 1em;
+        margin-bottom: 10px;
         position: relative;
     }
     .slide-list li {
@@ -214,9 +240,12 @@
     }
     .example a[id] {
         font-size: 1.2em;
-        padding: 5px 7px;
         -moz-border-radius: 5px;
-        -webkit-border-radius: 5px;
+        -webkit-border-radius: 5px;        
+        background-image: url(control_play_blue.png);
+        background-position: 5px 50%;
+        background-repeat: no-repeat;
+        padding: 5px 7px 5px 25px;
     }/*
 
     .code {
@@ -315,7 +344,7 @@
             <li><a href="#top">Top of page</a></li>
             <li><a href="#features">Features</a></li>
             <li><a href="#examples">Examples</a></li>            <li><a href="#usage">Usage</a></li>            <li><a href="#options">Options</a></li>
-            <li><a href="#functions">Functions</a></li>
+            <li><a href="#functions">Methods</a></li>
         </ul>
         </div>
         <a id="hide_link" href="#">Hide</a>
@@ -323,7 +352,7 @@
     
     <h2 id="features">Features:</h2>
     
-    <ul>    	<li>Can be created as 'alert', 'confirm' or 'prompt' boxes</li>    	<li>Boxes can be customised to contain any content including form elements</li>
+    <ul id="features-list">    	<li>Can be created as 'alert', 'confirm' or 'prompt' boxes</li>    	<li>Boxes can be customised to contain any content including form elements</li>
         <li>Can be triggered on all kinds of events, and customised according to the event target</li>    	<li>Easily set or retrieve data from any form fields within the box</li>    	<li>Customiseable 'confirm' and 'cancel' functions to respond to user input</li>
         <li>Many other customiseable settings </li>
         <li>Built-in functions for sending ajax requests</li>    	<li>Fully keyboard accessible - return/escape keys can be used to confirm/cancel, and arrow keys to move between Ok and Cancel buttons</li>
@@ -393,6 +422,9 @@
         // from the form's legend and submit button respectively
         title: $('#loginform legend').text(),
         okText: $('#loginform input[type=submit]').val(),
+        
+        // focus on password field
+        focus: '#password',
         confirm: function(box) {
             
             // add loading indicator
@@ -476,11 +508,7 @@ $(window).dialogbox({
     type: 'confirm',
     confirm: function() {
         window.location = 'annoying-survey.html'
-    },
-    // for page load or document ready,
-    // default action and propagation should not be prevented
-    preventDefault: false,
-    stopPropagation: false
+    }
 }, 'load');</pre>
   
     <p>Alternatively, a function can be supplied as the first argument to return the required parameters. The argument of this function is the event that was triggered, so that the target element can be located.</p>
@@ -514,7 +542,7 @@ $(window).dialogbox({
     
     <p>And in this next one, we have a table of products, any of which can be deleted. A confirmation dialog is attached to
      each delete button, and if confirmed, submits the button's form through an ajax request:</p>
-    <h6>HTML</h6>
+    <h6>HTML:</h6>
     <pre class="html">&lt;div id=&quot;product-holder&quot;&gt;
     &lt;table id=&quot;products&quot;&gt;
         &lt;tr&gt;
@@ -537,7 +565,7 @@ $(window).dialogbox({
         &lt;/tr&gt;
     &lt;/table&gt;
 &lt;/div&gt;</pre>
-    <h6>Javascript</h6>
+    <h6>Javascript:</h6>
     <pre class="js">function productDelete() {
     
     // trigger confirm dialog on each submit button in table
@@ -617,9 +645,11 @@ $(window).dialogbox({
             <div><div>
                 <h4>Description:</h4>
                 <p>'alert', 'confirm' or 'prompt'. Similarly to standard javascript dialog boxes, alert shows only 
-                one button and will only execute the <strong>confirm</strong> option, confirm boxes permit the user 
+                one button and will only execute the <a href="#option-confirm">confirm</a> option, 
+                confirm boxes permit the user 
                 to cancel, and prompt boxes additionally contain a single text or password input (see also 
-                <strong>promptText</strong> and <strong>promptType</strong> options for prompt boxes. </p>
+                <a href="#option-promptText">promptText</a> and <a href="#option-promptType">promptType</a> 
+                options for prompt boxes. </p>
                 <h4>Type:</h4>
                 <p>string</p>
                 <h4>Default:</h4>
@@ -638,21 +668,9 @@ $(window).dialogbox({
                 <p>This function optionally takes up to two arguments: the first is simply an alias of 
                 <strong>$.fn.dialogbox</strong> to save typing, the second is the event that was triggered.</p>
                 
-                <p>These arguments are taken by all function options (confirm, cancel, open and close).</p>
-                
-                <h5>Example:</h5>
-                
-                <pre class="js">$('a.delete').dialogbox({
-    message: 'Really delete this thing?',
-    type: 'confirm',
-    confirm: function(box, elm) {
-        box.addLoadbar();
-        $.post($(elm).attr('href'), 'delete=' + $(elm).attr('rel'), function(response) {
-            box.open(response);
-        });
-    }
-});</pre>
-                
+                <p>These arguments are taken by all function options (<a href="#option-confirm">confirm</a>, 
+                <a href="#option-cancel">cancel</a>, <a href="#option-open">open</a> and 
+                <a href="#option-close">close</a>).</p>               
                 <h4>Type:</h4>
                 <p>function</p>
                 <h4>Default:</h4>
@@ -666,7 +684,7 @@ $(window).dialogbox({
                 <p>Function to be executed if cancel button is clicked or user presses Escape. As with the 
                 <strong>confirm</strong> option, the box will be closed after this function has completed, unless it's been
                 altered.</p>
-                <p>This function takes the same arguments as <strong>confirm</strong>. </p>
+                <p>This function takes the same arguments as <a href="#option-confirm">confirm</a>. </p>
                 <h4>Type:</h4>
                 <p>function</p>
                 <h4>Default:</h4>
@@ -678,7 +696,7 @@ $(window).dialogbox({
             <div><div>
                 <h4>Description:</h4>
                 <p>Callback function to be executed before the box has been created and faded onto the page.</p>
-                <p>This function takes the same arguments as <strong>confirm</strong>. </p>
+                <p>This function takes the same arguments as <a href="#option-confirm">confirm</a>. </p>
                 <h4>Type:</h4>
                 <p>function</p>
                 <h4>Default:</h4>
@@ -690,11 +708,11 @@ $(window).dialogbox({
             <div><div>
                 <h4>Description:</h4>
                 <p>Callback function to be executed after the box has been faded out and removed.</p>
-                <p>This function takes the same arguments as <strong>confirm</strong>. </p>
+                <p>This function takes the same arguments as <a href="#option-confirm">confirm</a>. </p>
                 <p>For example, in the <a href="#example-4">login box above</a>, we grab a div within a hidden form on the page 
                 for the box content. This is automatically restored to its original location in the page when the box
                 is closed, so we use the <strong>close</strong> function
-                 to reset it to its orginal state by clearing the fields and removing any 
+                 to reset it to its initial state by clearing the fields and removing any 
                 error message.</p>
                 <h4>Type:</h4>
                 <p>function</p>
@@ -756,7 +774,10 @@ $(window).dialogbox({
                 <h5>Example:</h5>
                 <pre class="js">$('a.dosomethingawful').dialogbox({
     message: 'Are you sure you want to do this terrible thing?',
-    focus: '#dialogbox_cancel' // id of cancel button
+    focus: '#dialogbox_cancel', // id of cancel button
+    cancel: function() {
+        // do something awful...
+    }
 });</pre>
                 <h4>Type:</h4>
                 <p>string, or anything else to focus in the first available field.</p>
@@ -817,7 +838,7 @@ $(window).dialogbox({
                     horizontally centred, 50 pixels from the top.</p>
                     
                 <p>
-                    <a href="#nojs" id="position-demo">Give it a try!</a>
+                    <a href="#nojs" id="position-demo">Give it a try!</a> (this demo takes strings only)
                 </p>
                 
                 <h4>Type:</h4>
@@ -890,13 +911,13 @@ $(window).dialogbox({
         
     </ul>
     
-    <h2 id="functions">Function list:</h2>
+    <h2 id="functions">Methods:</h2>
 
     <ul id="functions-list" class="slide-list">
         <li>
     <h3 id="function-open">open([options])</h3>
     <div class="function-info"><div>
-    <p>Open a new dialog box. If there's already a box on the page, it will morph smoothly into the new one; otherwise the box will be faded onto the page. Focus will be placed in the first available form field on the box (which will be the Ok button if there are no fields in the message), unless the <a href="option-focus">focus</a> option is specified.</p>
+    <p>Open a new dialog box. If there's already a box on the page, it will morph smoothly into the new one; otherwise the box will be faded onto the page. Focus will be placed in the first available form field on the box (which will be the Ok button if there are no fields in the message), unless the <a href="#option-focus">focus</a> option is specified.</p>
     <h4>Arguments</h4>
     <p>An object of key/value pairs, or a string to create a simple alert box. </p>
 
@@ -918,7 +939,7 @@ $(window).dialogbox({
      Passing a string to this function will replace the box content, but leave all other options intact 
      (ie, rather than converting to an alert box). </p>
     <p>Alternatively, a key/value pair can be passed to change a single option, eg <strong>$.fn.dialogbox.set('okText', 'Go')</strong>.</p>
-    <p>This function can also be called with no arguments within the <strong>confirm</strong> or <strong>cancel</strong>
+    <p>This function can also be called with no arguments within the <a href="#option-confirm">confirm</a> or <a href="#option-cancel">cancel</a>
     functions to prevent the box from being closed.</p>
     <h4>Returns</h4>
     <p>$.fn.dialogbox</p>
@@ -1043,7 +1064,7 @@ $(window).dialogbox({
         <li><a href="http://docs.jquery.com/Downloading_jQuery#Download_jQuery">jQuery 1.4+</a>.</li>
         <li><a href="http://jqueryui.com/download">jQuery UI</a>, 
         with  <a href="http://jqueryui.com/demos/draggable/">draggable</a> component, unless the
-        <strong>draggable</strong> option is globally disabled.</li>
+        <a href="#option-draggable">draggable</a> option is globally disabled.</li>
         <li><a href="http://gsgd.co.uk/sandbox/jquery/easing/">jquery.easing</a> if using funny easing methods.</li>
     </ul>
     
@@ -1099,6 +1120,9 @@ $(function(){
         // from the form's legend and submit button respectively
         title: $('#loginform legend').text(),
         okText: $('#loginform input[type=submit]').val(),
+        
+        // focus on password field
+        focus: '#password',
         confirm: function(box) {
             
             // add loading indicator
@@ -1185,11 +1209,34 @@ $(function(){
     }));
     
     $('.function-slide, .option-slide').click(function() {
-        var infodiv = $(this).parent().next();
-        if (infodiv.css('display') === 'none') {
-            infodiv.slideDown();
+        var $link = $(this);
+        var $infodiv = $link.parent().next();
+        if ($infodiv.css('display') === 'none') {
+            $link.addClass('expanded');
+            $infodiv.slideDown('normal', function() {
+                
+                var top = $link.parent().offset().top - $(document).scrollTop();
+                if (top > 0) {
+                    var totalHeight = $link.parent().height() + $infodiv.children('div').outerHeight(true) + 10;
+                    var winHeight = $(window).height();
+                    if (top + totalHeight > winHeight) {
+                        
+                        var targetOffset = $link.parent().offset().top;
+                        if (totalHeight < winHeight) {
+                            targetOffset -= (winHeight - totalHeight);
+                        }
+                        
+                        $('html, body').stop().animate({scrollTop: targetOffset});
+                    }
+                }
+                
+             
+                
+            //    console.log($infodiv.offset().top) + ' :: ' + $infodiv.height()
+            });
         } else {
-            infodiv.slideUp();
+            $link.removeClass('expanded');
+            $infodiv.slideUp();
         }
         return false;
     });
@@ -1198,11 +1245,13 @@ $(function(){
     $('<p class="expanders"></p>').append($('<a/>', {
         href: '#',
         text: 'Expand all',
+        'class': 'expand-all',
         click: function() {
             $(this).parent().next().children().each(function() {
                 var div = $(this).children('div');
                 if (div.css('display') === 'none') {
                     div.slideDown();
+                    $(this).find('h3 a').addClass('expanded');
                 }
             })
             return false;
@@ -1210,11 +1259,13 @@ $(function(){
     })).append($('<a/>', {
         href: '#',
         text: 'Collapse all',
+        'class': 'collapse-all',
         click: function() {
             $(this).parent().next().children().each(function() {
                 var div = $(this).children('div');
                 if (div.css('display') !== 'none') {
                     div.slideUp();
+                    $(this).find('h3 a').removeClass('expanded');
                 }
             });
             return false;
@@ -1234,6 +1285,7 @@ $(function(){
         };
     });
     
+    // add title to external links for tooltips
     $('a').each(function() {
         if (location.hostname !== this.hostname) {
             $(this).addClass('external').attr('title', $(this).attr('href').replace('http://', ''));
@@ -1292,8 +1344,21 @@ $(function(){
             $target = $target.length && $target || $('[name=' + this.hash.slice(1) +']');     
             if ($target.length) {
             
-                var targetOffset = $target.offset().top;  
-                $('html, body').stop().animate({scrollTop: targetOffset}, 1000);               
+                var targetOffset = $target.offset().top;
+                var done = false;
+                $('html, body').stop().animate({scrollTop: targetOffset}, 1000, 'swing', function() {
+                    if (done) {
+                        return;
+                    }
+                    done = true;
+                    // expand method/option info if this was the target
+                    var $link = $target.children('a');
+                    if ($link.length && !$link.hasClass('expanded')) {
+                        setTimeout(function() {
+                            $link.click();
+                        }, 100);
+                    }
+                });
                 return false;               
             }     
         }

@@ -1,0 +1,212 @@
+
+#dialogbox_mask {
+/* mandatory - ensures the mask fills the page and is placed on top of all absolutely positioned elements */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 998;
+/* /mandatory */
+
+  background: #000;
+}
+
+#dialogbox_outer  {
+/* mandatory - fixes the box on the page and places it just above the mask */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  margin: 0;
+/* /mandatory */
+  width: 266px;
+  padding: 0;
+ /*   margin-left: -133px;can be changed, but margin-left should be negative of half the box width to ensure it's centred */
+  cursor: default;
+  color: #666;
+  padding-top: 15px;
+  background: url(images/dialog_top.png) no-repeat; 
+}
+#dialogbox_outer.dialogbox_ie {
+  background: url(images/dialog_top_ie.png) no-repeat;  
+}
+
+* html #dialogbox_outer {
+/* mandatory - the best we can do for ie6, but hacked further in the script to sort out the positioning */
+  position: absolute;
+/* /mandatory
+  background: url(dialog_top.gif) no-repeat; */
+}
+#dialogbox_inner {
+  padding: 27px 16px 13px;
+  height: 100%;
+  background: url(images/dialog_bottom.png) left bottom no-repeat;
+}
+.dialogbox_ie #dialogbox_inner {
+  background: url(images/dialog_bottom_ie.png) left bottom no-repeat;  
+}
+* html #dialogbox_inner {
+/* replace transparent pngs with gifs for ie
+	background: url(dialog_bottom.gif) left bottom no-repeat;
+  padding-bottom: 20px; */
+/*   position: relative;  or it fucks up the handle */
+	}
+
+*:first-child+html #dialogbox_outer * {
+/* 	padding-bottom: 20px; I don't know why ie needs this, but it does =( */
+    z-index: 9999;
+	}
+#dialogbox_inner p {
+	margin: 0 0 .5em;
+}
+#dialogbox_buttons, #dialogbox_button {
+  left: 0;
+  bottom: 11px;
+  padding: 10px 0;
+  position: absolute;
+ width: 100%; 
+}
+#dialogbox_buttons_inner {
+    position: relative; margin: 0 20px;
+    background: #fff;
+}
+#dialogbox_button input {
+    float: none;
+    margin: 0 auto;
+}
+#dialogbox_outer input {
+	width: 100%;
+	border: 1px solid;
+	}
+#dialogbox_outer input[type=text], #dialogbox_outer input[type=password] {
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+#dialogbox_outer input[type=checkbox], #dialogbox_outer input[type=radio] {
+    width: auto;
+    border: 0;
+    margin: 0;
+    display: inline;
+}
+#dialogbox_buttons {
+  margin-top: 0;
+}
+#dialogbox_loadbar {
+	position: absolute;
+	top: 0;
+	left: 18px;
+	width: 230px;
+	background: #fff url(images/loadbar.gif) center center no-repeat;
+    z-index: 9999;
+}
+* html #dialogbox_buttons {
+   /*
+ padding-top: 0;
+*/
+    display: block;
+}
+* html #dialogbox_outer input, * html #dialogbox_outer input, * html #dialogbox_message, * html #dialogbox_message_inner /*
+, * html #dialogbox_outer
+*/ {
+    height: 1%;
+}
+* html #dialogbox_message, * html #dialogbox_message_inner {
+
+}
+* html #dialogbox_message {
+
+}
+*:first-child+html #dialogbox_buttons {
+  min-height: 1px;
+}
+*:first-child+html #dialogbox_button {
+  min-height: 1px;
+}
+*:first-child+html #dialogbox_message {
+  min-height: 1px;
+}
+*:first-child+html #dialogbox_inner form {
+  min-height: 1px;
+}
+#dialogbox_message {
+    margin: 0 3px;
+    padding: 10px;
+    min-height: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    background: #ebebeb;
+}
+#dialogbox_message_inner {
+    top: 10px;
+    left: 10px;
+}
+#dialogbox_handle {
+    position: absolute;
+    top: 7px;
+    left: 9px;
+    width: 238px;
+    height: 1em;
+    overflow: hidden;
+    padding: 2px 5px 8px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #74b3da;
+    cursor: move;
+    color: #fff;
+    font-size: .9em;
+}
+* html #dialogbox_handle {
+    z-index: 9999; overflow: hidden; top: 8px;
+}
+#dialogbox_outer #dialogbox_button input, #dialogbox_outer #dialogbox_buttons input {
+  height: 25px;
+  line-height: 20px;
+  font-weight: bold;
+  margin: 0 6px;
+  width: 86px;
+  display: block;
+  float: left;
+  margin: 0;
+  background: url(images/dialog_button.png);
+  color: #555;
+  text-decoration: none;
+  border: 0;
+  outline: none;
+  font-size: 1em;
+  padding: 0;
+  cursor: pointer;
+  outline: none; outline-width: 0;
+}
+input::-moz-focus-inner { border: 0; }
+#dialogbox_outer #dialogbox_buttons #dialogbox_ok {
+    margin-right: 10px;
+}
+#dialogbox_outer #dialogbox_button input:focus, #dialogbox_outer #dialogbox_buttons input:focus,
+#dialogbox_outer #dialogbox_button input.dialogbox_focus, #dialogbox_outer #dialogbox_buttons input.dialogbox_focus {
+	background-position: 0 -25px;
+    color: #376784;
+}
+#dialogbox_outer #dialogbox_button input:hover, #dialogbox_outer #dialogbox_buttons input:hover,
+#dialogbox_outer #dialogbox_button input.dialogbox_hover, #dialogbox_outer #dialogbox_buttons input.dialogbox_hover {
+  background-position: 0 -50px;
+  color: #204860;
+}
+#dialogbox_outer #dialogbox_button input:active,#dialogbox_outer  #dialogbox_buttons input:active,
+#dialogbox_outer #dialogbox_button input.dialogbox_active,#dialogbox_outer  #dialogbox_buttons input.dialogbox_active {
+  background-position: 0 -75px;
+  color: #a66d00;
+}
+#dialogbox_outer select, #dialogbox_outer input, #dialogbox_outer select, #dialogbox_outer textarea {
+
+ width: 100%;
+ width: 202px;
+  position: relative;
+  display: block;
+  padding: 2px;
+  border: 1px solid #a3a3a3;
+  font-size: 1.2em;
+  font: 1.1em "Trebuchet MS", Arial, sans-serif;
+}
+* html #dialogbox_outer select, * html #dialogbox_outer input, * html #dialogbox_outer select, * html #dialogbox_outer textarea {
+    margin-left: 0;
+}

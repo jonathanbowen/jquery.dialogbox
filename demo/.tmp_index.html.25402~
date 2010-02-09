@@ -815,10 +815,6 @@ $(window).dialogbox({
                 <strong>50</strong> - 50 pixels from the left, vertically centered,<br />
                 <strong>'center 50'</strong> / <strong>['center', 50]</strong> - 
                     horizontally centred, 50 pixels from the top.</p>
-                    
-                <p>
-                    <a href="#nojs" id="position-demo">Give it a try!</a>
-                </p>
                 
                 <h4>Type:</h4>
                 <p>string, number or array</p>
@@ -1129,16 +1125,6 @@ $(function(){
             $('#loginform').get(0).reset();
         }
     });
-    
-    // positioning demo
-    $('a#position-demo').dialogbox({
-        message: 'Where would you like me?',
-        type: 'prompt',
-        promptText: 'top left',
-        confirm: function(box) {
-            box.set('position', box.prompt());
-        }
-    });
 
     // default ajax failure function
     $(document).dialogbox('Connection error! Please try again later.', 'ajaxError');
@@ -1335,6 +1321,7 @@ $(function(){
         
         return $('<textarea/>').html(str).val();
     }
+    
 
 });
 

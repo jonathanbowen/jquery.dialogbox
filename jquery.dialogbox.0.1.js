@@ -140,12 +140,12 @@
     
     $.fn.dialogbox.set = function(options, v) {
     
-        var outer = $('#dialogbox_outer');
-        var inner = $('#dialogbox_inner');
-        var msgholder = $('#dialogbox_message');
-        var msgdiv = $('#dialogbox_message_inner');
-        var buttons = $('#dialogbox_button, #dialogbox_buttons');
-        var promptVal = $.fn.dialogbox.prompt();
+        var outer = $('#dialogbox_outer'),
+            inner = $('#dialogbox_inner'),
+            msgholder = $('#dialogbox_message'),
+            msgdiv = $('#dialogbox_message_inner'),
+            buttons = $('#dialogbox_button, #dialogbox_buttons'),
+            promptVal = $.fn.dialogbox.prompt();
         
         if (!outer.length) {
             return this;
@@ -230,6 +230,8 @@
                 id: 'dialogbox_input',
                 name: 'dialogbox_input',
                 maxlength: 30,
+                // using options rather than Current.options here,
+                // because we don't want an inherited option to overwrite any user-entered data
                 value: options.promptText !== undefined ? options.promptText : promptVal
             })).appendTo(msgholder);
         }
@@ -251,7 +253,7 @@
             display: 'inline'
         }}).prependTo(buttons);
 
-        var newHeight = msgdiv.css('height', 'auto').height();
+        var newHeight = msgholder.css('height', 'auto').height();
         var oldHeight = Current.msgHeight || newHeight;
         var diff = newHeight - oldHeight;
         var ieAdjust = Current.isIE6 ? $(document).scrollTop() : 0;
@@ -323,7 +325,7 @@
             }, Current.options.transitions, Current.options.easing, $.fn.dialogbox.adjustPosition);
         }
         
-        msgdiv.stop().css('height', oldHeight + 'px').animate({
+        msgholder.stop().css('height', oldHeight + 'px').animate({
             height: (diff > 0 ? '+' : '-') + '=' + Math.abs(diff)
         }, Current.options.transitions, Current.options.easing, $.fn.dialogbox.focus);
 

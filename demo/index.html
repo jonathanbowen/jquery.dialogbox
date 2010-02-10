@@ -1182,13 +1182,16 @@ $(function(){
         href: '#'
     }));
     $('.slide').click(function() {
-        var code = $(this).parent().next('.code');
-        if (code.css('display') === 'none') {
-            code.slideDown();
-            $(this).text('Hide code');
+        var $link = $(this),
+            $code = $link.parent().next('.code');
+        if ($code.css('display') === 'none') {
+            $code.slideDown('normal', function() {
+                adjustPosition($link);
+            });
+            $link.text('Hide code');
         } else {
-            code.slideUp();
-            $(this).text('View code');
+            $code.slideUp();
+            $link.text('View code');
         }
         return false;
     });
@@ -1212,31 +1215,33 @@ $(function(){
         href: '#'
     }));
     
+    // when a code sample/option/method info is expanded,
+    // scroll to fit in window if necessary
+    function adjustPosition($link) {
+        
+        var $parent = $link.parent(),
+            top = $parent.offset().top - $(document).scrollTop();
+        if (top > 0) {
+            var totalHeight = $parent.height() + $parent.next().children('div').outerHeight(true) + 60;
+            var winHeight = $(window).height();
+            if (top + totalHeight > winHeight) {
+                
+                var targetOffset = $parent.offset().top;
+                if (totalHeight < winHeight) {
+                    targetOffset -= (winHeight - totalHeight);
+                }
+                $('html, body').stop().animate({scrollTop: targetOffset}, 'slow');
+            }
+        }  
+    }
+    
     $('.function-slide, .option-slide').click(function() {
         var $link = $(this);
         var $infodiv = $link.parent().next();
         if ($infodiv.css('display') === 'none') {
             $link.addClass('expanded');
             $infodiv.slideDown('normal', function() {
-                
-                var top = $link.parent().offset().top - $(document).scrollTop();
-                if (top > 0) {
-                    var totalHeight = $link.parent().height() + $infodiv.children('div').outerHeight(true) + 10;
-                    var winHeight = $(window).height();
-                    if (top + totalHeight > winHeight) {
-                        
-                        var targetOffset = $link.parent().offset().top;
-                        if (totalHeight < winHeight) {
-                            targetOffset -= (winHeight - totalHeight);
-                        }
-                        
-                        $('html, body').stop().animate({scrollTop: targetOffset});
-                    }
-                }
-                
-             
-                
-            //    console.log($infodiv.offset().top) + ' :: ' + $infodiv.height()
+                adjustPosition($link);
             });
         } else {
             $link.removeClass('expanded');
@@ -1297,24 +1302,25 @@ $(function(){
     });
 
     // tooltips
-    $('*[title]').mouseover(function() {
-       
-        $(this).data('title', $(this).data('title') || $(this).attr('title'));
-        $(this).attr('title', '');
+    $('*[title]').mouseenter(function() {
+        var $elm = $(this);
+        $elm.data('title', $elm.data('title') || $elm.attr('title')).attr('title', '');
+        if (!$elm.data('title')) {
+            return;
+        }
         $('.tip').remove();
         $('<div/>', {
             css: {
-                left: ($(this).offset().left + (parseInt($(this).css('margin-left').replace('px', '')) || 0)) + 'px',
-                top: ($(this).offset().top + $(this).outerHeight() + 7) + 'px',
+                left: ($elm.offset().left + (parseInt($elm.css('margin-left').replace('px', '')) || 0)) + 'px',
+                top: ($elm.offset().top + $elm.outerHeight() + 7) + 'px',
                 opacity: 0
             },
             'class': 'tip',
-            text: $(this).data('title')
+            text: $elm.data('title')
         }).appendTo('body').animate({
             opacity:1
         });    
     }).mouseleave(function() {
-
         $('.tip').animate({
             top:'+=10',
             opacity:0
@@ -1324,14 +1330,13 @@ $(function(){
             }
         });
     }).mousemove(function(e) {
-        
-        var t = $('.tip');
-        var h = t.outerHeight();
-        var w = t.outerWidth();
-        var winWidth = $(window).width();
-        var winHeight = $(window).height() + $(document).scrollTop();
-        var after = winWidth - e.pageX - 10;
-        var lower = winHeight - e.pageY - 30;
+        var t = $('.tip'),
+            h = t.outerHeight(),
+            w = t.outerWidth(),
+            winWidth = $(window).width(),
+            winHeight = $(window).height() + $(document).scrollTop(),
+            after = winWidth - e.pageX - 10,
+            lower = winHeight - e.pageY - 30;
         t.css({
             top: ((winHeight - e.pageY - 30) < h && e.pageY > lower ? e.pageY - h - 10 : e.pageY + 30) + 'px',
             left: ((winWidth - e.pageX - 10) < w && e.pageX > after ? e.pageX - w - 10 : e.pageX + 10) + 'px'
@@ -1348,8 +1353,8 @@ $(function(){
             $target = $target.length && $target || $('[name=' + this.hash.slice(1) +']');     
             if ($target.length) {
             
-                var targetOffset = $target.offset().top;
-                var done = false;
+                var targetOffset = $target.offset().top,
+                    done = false;
                 $('html, body').stop().animate({scrollTop: targetOffset}, 1000, 'swing', function() {
                     if (done) {
                         return;
@@ -1382,21 +1387,22 @@ $(function(){
     // show / hide footer
     $('#hide_link').click(function() {
         
-        var toc = $('#toc > div');
-        $(this).addClass('sliding');
-        if ($(this).text() === 'Show') {
-            $(this).text('Hide');
+        var toc = $('#toc > div'),
+            $link = $(this);
+        $link.addClass('sliding');
+        if ($link.text() === 'Show') {
+            $link.text('Hide');
             toc.stop().animate({width: $(document).width() + 'px', opacity: 1}, 'normal', 'swing', function() {
-                $(this).removeClass('sliding');
+                $link.removeClass('sliding');
             });
-            $(this).stop().animate({paddingRight: '20px'});
+            $link.stop().animate({paddingRight: '20px'});
         }
         else {
-            $(this).text('Show');
+            $link.text('Show');
             toc.stop().animate({width: 0, opacity: 0}, 'normal', 'swing', function() {
-                $(this).removeClass('sliding');
+                $link.removeClass('sliding');
             });
-            $(this).stop().animate({paddingRight: '5px'});
+            $link.stop().animate({paddingRight: '5px'});
         }
     });
     

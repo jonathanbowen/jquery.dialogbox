@@ -469,7 +469,47 @@
      * @param {String|Boolean} v  Value of selected field; if field is checkbox/radio, use a boolean to check/uncheck
      * @return {Object|String} Value of selected field or key/value object of all fields
      */
-    $.fn.dialogbox.form = function(k, v) {
+    
+    $.fn.dialogbox.form = function(n, v) {
+    
+        var result;
+        if (n === undefined) {
+            result = $('#dialogbox_outer').serializeArray();
+        }
+        else if (typeof n === 'object') {
+            $.each(n, function(index, value) {
+                var args = value.name !== undefined ? [value.name, value.value] : [index, value];
+                result = $.fn.dialogbox.form(args[0], args[1]);
+            });
+        }
+        else {
+            var $fields = $('*[name=' + n + ']'), 
+                type = $fields.attr('type'),
+                setting = v !== undefined;
+            if (type === 'radio' || type === 'checkbox') {
+                if (setting) {
+                    v = $.map(typeof v === 'object' ? v : [v], function(a){ return a + ''; });
+                }
+                $fields.each(function() {
+                    var $field = $(this), val = $field.val();
+                    if (setting) {
+                        $field.get(0).checked = $.inArray(val, v) > -1 ? true : false;
+                    }
+                    else if ($field.get(0).checked) {
+                        result = result && typeof result !== 'object' ? [result] : result;
+                        typeof result === 'object' ? result[result.length] = val : result = val;
+                    }
+                });
+            }
+            else {
+                setting ? $fields.val(v) : result = $fields.val();
+            }
+            result = setting ? this : result;
+        }
+        return result;
+    };
+   /*
+ $.fn.dialogbox.form = function(k, v) {
         
         var result, field, type;
         if (v !== undefined) {
@@ -512,6 +552,7 @@
         }
         return result;
     };
+*/
     
     /**
      * Reset all form fields
@@ -617,30 +658,29 @@
         }
         var fields = $('#dialogbox_outer').find('input:visible, select:visible, textarea:visible, button:visible');
         if (fields.length) {
+            Current.focussed = Current.focussed && Current.focussed.is(':visible') ? 
+                Current.focussed : 
+                (typeof Current.options.focus === 'string' && $(Current.options.focus).length && 
+                    $(Current.options.focus).parents('#dialogbox_inner').length ? 
+                    $(Current.options.focus) : 
+                    $(fields[0])
+                );
             fields.unbind('focus')
                 .unbind('blur')
                 .unbind('mouseover')
                 .unbind('mouseout')
-                .blur().removeClass('dialogbox_focus');
-            var target = typeof Current.options.focus === 'string' && $(Current.options.focus).length && 
-                $(Current.options.focus).parents('#dialogbox_inner').length ? $(Current.options.focus) : $(fields[0]);
-            target.focus();
-            Current.focussed = target.attr('id');
-            var type = target.attr('type');
-            if (type === 'text' || type === 'password') {
-                target.select();
-            }
-            fields.focus(function() {
-                $(this).addClass('dialogbox_focus');
-                Current.focussed = $(this).attr('id');
-            }).blur(function() {
-                $(this).removeClass('dialogbox_focus');
-                Current.focussed = false;
-            }).mouseover(function() {
-                $(this).addClass('dialogbox_hover');
-            }).mouseout(function() {
-                $(this).removeClass('dialogbox_hover');
-            });
+                .blur()
+                .removeClass('dialogbox_focus')
+                .focus(function() {
+                    Current.focussed = $(this).addClass('dialogbox_focus');
+                }).blur(function() {
+                    $(this).removeClass('dialogbox_focus');
+                }).mouseover(function() {
+                    $(this).addClass('dialogbox_hover');
+                }).mouseout(function() {
+                    $(this).removeClass('dialogbox_hover');
+                });
+            Current.focussed.focus();
         }
         return this;
     };
@@ -729,7 +769,8 @@
         var cancel = $('#dialogbox_cancel');
         if (!ok.length) { return; }
         
-        var entered = evt.which;
+        var entered = evt.which,
+            focussed = Current.focussed instanceof jQuery ? Current.focussed.attr('id') : false;
         
         if (entered === 27) {
             Current.onCancel();
@@ -739,20 +780,20 @@
         // use arrow keys to move focus between buttons like regular popups
         // 37:left, 38:up, 39:right, 40:down (return false to prevent scrolling (opera ignores this))
         else if (entered === 39 || entered === 40) {
-            if (Current.focussed === 'dialogbox_ok' && cancel.length) {
+            if (focussed === 'dialogbox_ok' && cancel.length) {
                ok.blur();
                cancel.focus();
             }
-            if (Current.focussed === 'dialogbox_cancel' || Current.focussed === 'dialogbox_ok') {
+            if (focussed === 'dialogbox_cancel' || focussed === 'dialogbox_ok') {
                 evt.preventDefault();
             }
         }
         else if (entered === 37 || entered === 38) {
-            if (Current.focussed === 'dialogbox_cancel' && cancel.length) {
+            if (focussed === 'dialogbox_cancel' && cancel.length) {
                 cancel.blur();
                 ok.focus();
             }
-            if (Current.focussed === 'dialogbox_cancel' || Current.focussed === 'dialogbox_ok') {
+            if (focussed === 'dialogbox_cancel' || focussed === 'dialogbox_ok') {
                 evt.preventDefault();
             }
         }

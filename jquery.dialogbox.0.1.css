@@ -207,6 +207,9 @@ input::-moz-focus-inner { border: 0; }
   font-size: 1.2em;
   font: 1.1em "Trebuchet MS", Arial, sans-serif;
 }
+#dialogbox_outer textarea {
+    font-size: 1em;
+}
 * html #dialogbox_outer select, * html #dialogbox_outer input, * html #dialogbox_outer select, * html #dialogbox_outer textarea {
     margin-left: 0;
 }

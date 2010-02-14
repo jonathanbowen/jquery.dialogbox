@@ -1,6 +1,5 @@
 // jQuery dialog boxes
 // Jonathan Bowen 2008-2010
-// Last modified 2010-02-04
 
 (function($) {
 
@@ -16,6 +15,7 @@
             draggable: true,
             easing: 'swing',
             focus: false,
+            loadbar: false,
             maskOpacity: 0.3,
             message: '',
             okText: 'Ok',
@@ -35,24 +35,30 @@
      * Variables for storing current box state - only accessed internally
      */
         Current = {
-            options: {},
             dragging: false,
             focussed: false,  
             id: 0,
-            isIE6: false,
+            isIE6: $.browser.msie && $.browser.version.substr(0, 1) < 7 ? true : false,
             left: 0,
             msgHeight: 0,
             onCancel: $.noop,
+            options: {},
             outerHeight: 0,
             paddingBottom: 0,
             restoreTo: {},
             srcEvent: false,
             top: 0
         };
-        
+    
+    /**
+     * Attach box-triggering event
+     * 
+     * @param  {Object} options config options or function to generate same
+     * @param  {Object} evt     event to attach box to
+     * @return {Object} jQuery
+     */    
     $.fn.dialogbox = function(options, evt) {
     
-        Current.isIE6 = $.browser.msie && $.browser.version.substr(0, 1) < 7 ? true : false;
         $(this)[evt || 'click'](function(e) {
             Current.srcEvent = e;
             $.fn.dialogbox.open(typeof options === 'function' ? options(e) : options);
@@ -60,12 +66,18 @@
         return this;
     };
     
+    /**
+     * Open a new box
+     * 
+     * @param  {Object} options config options
+     * @return {Object} $.fn.dialogbox
+     */
     $.fn.dialogbox.open = function(options) {
     
         // close any existing boxes
         storeDimensions();
         if ($('#dialogbox_outer').length) {
-            $.fn.dialogbox.close(Current.options.close, false, true);
+            $.fn.dialogbox.close(Current.options.close, true);
         }
 
         // store parameters in a variable that can be accessed by other functions 
@@ -94,18 +106,17 @@
         ).appendTo($('body')).hide().fadeIn(Current.outerHeight ? 0 : options.transitions, function() {
             
             // don't let the callback run more than once
-            if (callbackRan) {
-                return;
-            }
-            callbackRan = true;
-            
-            // doesn't fade in if box is taller than the viewport (don't know why), so need to set explicitly
-            $('#dialogbox_outer').css('opacity', 1);
-            if (Current.isIE6) {
-                $('body').children('*[id!=dialogbox_outer]').find('select').css({display: 'none'});
+            if (!callbackRan) {
+                // doesn't fade in if box is taller than the viewport (don't know why), so need to set explicitly
+                $('#dialogbox_outer').css('opacity', 1);
+                if (Current.isIE6) {
+                    $('body').children('*[id!=dialogbox_outer]').find('select').css({display: 'none'});
+                }
+                callbackRan = true;
             }
         });
         
+        // make sure mask fills entire page on resize
         var resize = function() {
             $('#dialogbox_mask').css({
                 height: $(document).height() + 'px',
@@ -120,9 +131,10 @@
         
         $.fn.dialogbox.set(options);
 
-        // very nasty hacks to mitigate ie6's 'difficulties'
+        // hacks to mitigate ie6's 'difficulties'
         if (Current.isIE6) {
             $.fn.dialogbox.adjustPosition();
+            $('#dialogbox_outer').click();
             $(window).scroll($.fn.dialogbox.adjustPosition).resize($.fn.dialogbox.adjustPosition);
         }
         
@@ -131,13 +143,20 @@
                 Current.srcEvent.preventDefault();
             }
             if (options.stopPropagation) {
-                Current.srcEvent.stopImmediatePropagation();
+                Current.srcEvent.stopPropagation();
             }
         }
         
         return this; 
     };
     
+    /**
+     * Alter properties of existing box
+     * 
+     * @param  {Object} options config options or config key
+     * @param  {Mixed}  v       config value, if key used for first argument
+     * @return {Object} $.fn.dialogbox
+     */
     $.fn.dialogbox.set = function(options, v) {
     
         var outer = $('#dialogbox_outer'),
@@ -171,8 +190,6 @@
             options = { message: options };
         }
         
-   //     msgdiv.css({height:'auto'});
-        
         // apply parameters to box
         if (options.message !== undefined) {
             
@@ -198,6 +215,8 @@
                 }
                 msgdiv.append(options.message);
             }
+            // repopulate the form
+            // so entered input does not disappear if fields have been added in an html string
             if (formVals.length) {
                 $.fn.dialogbox.form(formVals);
             }
@@ -239,9 +258,10 @@
         // sort out box dimensions and perform transitions if necessary
         inner.css('padding-bottom', 
             (Current.paddingBottom + $('#dialogbox_button, #dialogbox_buttons').outerHeight()) + 'px' );
-        var w = 0;
+        var w = 0, h = 0;
         $('#dialogbox_button input, #dialogbox_buttons input').each(function() {
             w += $(this).css('margin-left', 0).outerWidth(true);
+            h = $(this).outerHeight(true);
         });
 
         // should just add a margin, but ie6 doubles it, so use a span instead
@@ -249,26 +269,29 @@
         $('<span/>', {css: {
             float: 'left',
             width: ((outer.outerWidth() / 2) - (w / 2)) + 'px',
-            height: '10px',
+            height: h + 'px',
             display: 'inline'
         }}).prependTo(buttons);
 
-        var newHeight = msgholder.css('height', 'auto').height();
-        var oldHeight = Current.msgHeight || newHeight;
-        var diff = newHeight - oldHeight;
-        var ieAdjust = Current.isIE6 ? $(document).scrollTop() : 0;
+        $('#dialogbox_outer input[type=hidden]').hide();
+        var newHeight = msgholder.css('height', 'auto').height(),
+            oldHeight = Current.msgHeight || newHeight,
+            diff = newHeight - oldHeight,
+            ieAdjust = Current.isIE6 ? $(document).scrollTop() : 0;
         
         if (!Current.outerHeight || options.position !== undefined) {
 
             options.position = options.position === undefined ? Config.position : options.position;
-            var coords = typeof options.position === 'object' ? 
-                options.position : options.position.toString().replace(/^\s+|\s+$/, '').split(/\s+/);
+            var css = {},
+                horizontals = ['left', 'right'],
+                verticals = ['top', 'bottom'],
+                strings = horizontals.concat(verticals),
+                coords = typeof options.position === 'object' ? 
+                    options.position : options.position.toString().replace(/^\s+|\s+$/, '').split(/\s+/);
             coords = $.extend(['center', 'center'], coords.slice(0, 2));
-            var horizontals = ['left', 'right'], verticals = ['top', 'bottom'], strings = horizontals.concat(verticals);
             if ($.inArray(coords[0], verticals) > -1 || $.inArray(coords[1], horizontals) > -1) {               
                 coords.reverse();
             }
-            var css = {};           
             $.each(coords, function(k, coord) {
                 
                 var d = k ? 'top' : 'left';
@@ -344,11 +367,24 @@
                 }
             });
         }
+        
+        if (Current.options.loadbar) {
+            $.fn.dialogbox.addLoadbar();
+            Current.options.loadbar = false;
+        }
 
         return this;
     };
     
-    $.fn.dialogbox.close = function(callback, boxId, nofade) {
+    /**
+     * Close box
+     * 
+     * @param  {Function} callback Function to be called after box has been faded and removed
+     * @param  {Boolean}  nofade   Whether to set fade duration to 0
+     * @param  {Number}   boxId    Id of current box
+     * @return {Object}   $.fn.dialogbox
+     */
+    $.fn.dialogbox.close = function(callback, nofade, boxId) {
     
         // prevent from closing newly created/altered boxes
         if (!boxId || boxId === Current.id) {
@@ -379,6 +415,11 @@
         return this;
     };
     
+    /**
+     * Add loading indicator and disable confirm/cancel functions
+     * 
+     * @return {Object} $.fn.dialogbox
+     */
     $.fn.dialogbox.addLoadbar = function() {
     
         if (!$('#dialogbox_outer').length) {
@@ -386,7 +427,7 @@
         }
         if (!$('#dialogbox_loadbar').length) {
             
-            // reset box id: so this function can be included within onConfirm or onCancel functions
+            // reset box id: so this function can be included within confirm or cancel functions
             // without the box being immediately closed after those functions have completed
             setId();
             var buttonholder = $('#dialogbox_buttons, #dialogbox_button');
@@ -402,6 +443,11 @@
         return this;
     };
     
+    /**
+     * Remove loading indicator if present and reattach events
+     * 
+     * @return {Object} $.fn.dialogbox
+     */
     $.fn.dialogbox.removeLoadbar = function() {
     
         $('#dialogbox_loadbar').remove();
@@ -469,7 +515,6 @@
      * @param {String|Boolean} v  Value of selected field; if field is checkbox/radio, use a boolean to check/uncheck
      * @return {Object|String} Value of selected field or key/value object of all fields
      */
-    
     $.fn.dialogbox.form = function(n, v) {
     
         var result;
@@ -508,54 +553,11 @@
         }
         return result;
     };
-   /*
- $.fn.dialogbox.form = function(k, v) {
-        
-        var result, field, type;
-        if (v !== undefined) {
-            
-            field = $('#' + k);
-            type = field.attr('type');
-            if (field.length && (type === 'checkbox' || type === 'radio')) {
-                field.get(0).checked = !!v;
-            }
-            else {
-                field.val(v);
-            }
-            result = this;
-        }
-        else if (typeof k === 'object') {
-            $.each(k, function(index, value) {
-                
-                if (value.name !== undefined) {
-                    $.fn.dialogbox.form(value.name, value.value);
-                }
-                else {
-                    $.fn.dialogbox.form(index, value);
-                }
-            });
-            result = this;
-        }
-        else if (k !== undefined) {
-            
-            field = $('#' + k);
-            type = field.attr('type');
-            if (field.length && (type === 'checkbox' || type === 'radio')) {
-                result = field.get(0).checked;
-            }
-            else {
-                result = $('#' + k).val();
-            }
-        }
-        else {
-            result = $('#dialogbox_outer').serializeArray();
-        }
-        return result;
-    };
-*/
     
     /**
      * Reset all form fields
+     * 
+     * @return {Object} $.fn.dialogbox
      */
     $.fn.dialogbox.reset = function() {
         
@@ -568,13 +570,17 @@
     
     /**
      * Is there a box on the page?
+     * 
+     * @return {Boolean}
      */
     $.fn.dialogbox.isOpen = function() {
-        return $('#dialogbox_outer').length === 1;
+        return $('#dialogbox_outer').length > 0;
     }
     
     /**
      * Just passes the box form to jquery serialize() function
+     * 
+     * @return {String} serialised form data
      */
     $.fn.dialogbox.serialize = function() {
         
@@ -584,8 +590,9 @@
     /**
      * Shake the box and refocus if user clicks away
      * 
-     * @param {Number} max  number of shakes
-     * @param {Number} i    current iteration
+     * @param  {Number} max  number of shakes
+     * @param  {Number} i    current iteration
+     * @return {Object} $.fn.dialogbox
      */
     $.fn.dialogbox.shake = function(max, i) {
         
@@ -614,6 +621,12 @@
         return this;
     };
     
+    /**
+     * Check box's position; if any part of it's moved out of the viewport,
+     * then animate back in if there's enough space
+     * 
+     * @return {Object} $.fn.dialogbox
+     */
     $.fn.dialogbox.adjustPosition = function() {
         
         var outer = $('#dialogbox_outer'), css = {}, offset = outer.offset();
@@ -648,13 +661,18 @@
         return this;
     };
     
-    $.fn.dialogbox.focus = function() {
+    /**
+     * Focus on a field within the box and add focus/blur/hover/mouseout events to all fields
+     * 
+     * @return {Object} $.fn.dialogbox
+     */
+    $.fn.dialogbox.focus = function() {// return;
 
         // when using form elements from the page,
         // ie removes focus from updated boxes when the mouse is moved or user attempts to submit by pressing Enter
         // creating an input, focussing it, then removing it, somehow tricks ie into behaving itself
         if ($.browser.msie && $.browser.version < 8) {
-            $('<input/>').appendTo('#dialogbox_outer').focus().remove();
+            $('<input/>').css('position', 'absolute').appendTo('#dialogbox_outer').focus().remove();
         }
         var fields = $('#dialogbox_outer').find('input:visible, select:visible, textarea:visible, button:visible');
         if (fields.length) {
@@ -664,12 +682,11 @@
                     $(Current.options.focus).parents('#dialogbox_inner').length ? 
                     $(Current.options.focus) : 
                     $(fields[0])
-                );
+                );              
             fields.unbind('focus')
                 .unbind('blur')
                 .unbind('mouseover')
                 .unbind('mouseout')
-                .blur()
                 .removeClass('dialogbox_focus')
                 .focus(function() {
                     Current.focussed = $(this).addClass('dialogbox_focus');
@@ -680,7 +697,7 @@
                 }).mouseout(function() {
                     $(this).removeClass('dialogbox_hover');
                 });
-            Current.focussed.focus();
+            Current.focussed.focus();  
         }
         return this;
     };
@@ -688,18 +705,28 @@
     /**
      * To prevent momentary flash of 'naked box' while its background images are loading,
      * open and then close an empty box - this should make browsers fetch all required background images 
+     * 
+     * @return {Object} $.fn.dialogbox
      */
     $.fn.dialogbox.preload = function() {
         
         return $.fn.dialogbox.open().addLoadbar().close();
     };
     
+    /**
+     * Set box id for use in close()
+     * 
+     * @return {Number} the new id
+     */
     function setId() {
     
         Current.id = ((new Date()).getTime() + '' + Math.floor(Math.random() * 1000000)).substr(0, 18);
         return Current.id;
     }
     
+    /**
+     * Add confirm, cancel, keydown and other events
+     */
     function addEvents() {
         
         var outer = $('#dialogbox_outer'), id = setId();
@@ -717,7 +744,7 @@
                 if (typeof Current.options[a] === 'function') {
                     Current.options[a]($.fn.dialogbox, Current.srcEvent);
                 }
-                $.fn.dialogbox.close(Current.options.close, id);
+                $.fn.dialogbox.close(Current.options.close, false, id);
             }
             return false;
         };
@@ -763,22 +790,26 @@
         Current.restoreTo = {};
     }
     
+    /**
+     * Keydown function - enable arrow keys and Escape for cancelling
+     * @param {Object} evt
+     */
     function keydown(evt) {
 
-        var ok = $('#dialogbox_ok');
-        var cancel = $('#dialogbox_cancel');
-        if (!ok.length) { return; }
-        
-        var entered = evt.which,
+        var ok = $('#dialogbox_ok'),
+            cancel = $('#dialogbox_cancel'),
+            entered = evt.which,
             focussed = Current.focussed instanceof jQuery ? Current.focussed.attr('id') : false;
+        
+        if (!ok.length) { return; }
         
         if (entered === 27) {
             Current.onCancel();
             evt.preventDefault();
         }
 
-        // use arrow keys to move focus between buttons like regular popups
-        // 37:left, 38:up, 39:right, 40:down (return false to prevent scrolling (opera ignores this))
+        // use arrow keys to move focus between buttons like regular dialogs
+        // 37:left, 38:up, 39:right, 40:down (using preventDefault to prevent scrolling (opera ignores this))
         else if (entered === 39 || entered === 40) {
             if (focussed === 'dialogbox_ok' && cancel.length) {
                ok.blur();
@@ -800,12 +831,16 @@
         evt.stopPropagation();
     }
     
+    /**
+     * Store box dimensions for use in animations
+     */
     function storeDimensions() {
 
+        var outer = $('#dialogbox_outer');
         Current.msgHeight = $('#dialogbox_message').height();
-        Current.outerHeight = $('#dialogbox_outer').outerHeight();  
-        Current.top = $('#dialogbox_outer').css('top');
-        Current.left = $('#dialogbox_outer').css('left');
+        Current.outerHeight = outer.outerHeight();  
+        Current.top = outer.css('top');
+        Current.left = outer.css('left');
     }
 
 })(jQuery);

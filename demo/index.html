@@ -613,7 +613,7 @@
     <p>Both of these examples will degrade gracefully if javascript is disabled.</p>
     
     <h2 id="options">Options:</h2>
-    <p>This is the full list of options that can be applied; these can be passed when attaching the handler, opening a new box using <a href="#function-open">$.fn.dialogbox.open()</a> or changing an existing box with <a href="#function-set">$.fn.dialogbox.set()</a>. All options are optional. Default options can be set with <a href="#function-config">$.fn.dialogbox.config()</a></p>
+    <p>This is the full list of options that can be applied; these can be passed when attaching the handler, opening a new box using <a href="#function-open">open()</a> or changing an existing box with <a href="#function-set">set()</a>. All options are optional. Default options can be set with <a href="#function-config">config()</a></p>
     
     <p>
         <a href="#nojs" id="open-demo">Open a box!</a>
@@ -623,7 +623,6 @@
         <li>
             <h3 id="option-message">message</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>The message to be displayed. If a DOM element is supplied, 
                     it will be converted into a jQuery collection.</p><p>
                     Be aware that the box itself is a form, so form fields can be added, but not an entire form element.
@@ -631,12 +630,12 @@
                     If an element from the page is added (as DOM element or jQuery collection) then the script will try to
                     restore the element to its original location in the page when the box is closed,
                     or if its content is subsequently replaced by another DOM element using 
-                    <a href="#function-set">$.fn.dialogbox.set()</a>. Note that this may
+                    <a href="#function-set">set()</a>. Note that this may
                     have unpredictable results if the element's parent or siblings have been moved or deleted since the 
                     box was opened. If necessary the <a href="#option-restore">restore</a> option can be set to
                     <strong>false</strong> to prevent the element from being restored.</p>
                 <h4>Type:</h4>
-                <p>string, jQuery collection or DOM element</p>
+                <p>String, jQuery collection or DOM element</p>
                 <h4>Default:</h4>
                 <p>(empty string)</p>
             </div></div>
@@ -644,10 +643,9 @@
         <li>
             <h3 id="option-title">title</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Title bar text.</p>
                 <h4>Type:</h4>
-                <p>string</p>
+                <p>String</p>
                 <h4>Default:</h4>
                 <p>(empty string)</p>
             </div></div>
@@ -655,7 +653,6 @@
         <li>
             <h3 id="option-type">type</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>'alert', 'confirm' or 'prompt'. Similarly to standard javascript dialog boxes, alert shows only 
                 one button and will only execute the <a href="#option-confirm">confirm</a> option, 
                 confirm boxes permit the user 
@@ -663,7 +660,7 @@
                 <a href="#option-promptText">promptText</a> and <a href="#option-promptType">promptType</a> 
                 options for prompt boxes. </p>
                 <h4>Type:</h4>
-                <p>string</p>
+                <p>String</p>
                 <h4>Default:</h4>
                 <p>'alert'</p>
             </div></div>
@@ -671,11 +668,10 @@
         <li>
             <h3 id="option-confirm">confirm</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Function to be executed if ok button is clicked or the form is submitted through the keyboard.
                 The box will be automatically closed after this function has executed, unless the function opens a new
-                box, or alters the existing box using <a href="#function-set">$.fn.dialogbox.set()</a> or 
-                <a href="#function-addLoadbar">$.fn.dialogbox.addLoadbar()</a>.</p>
+                box, or alters the existing box using <a href="#function-set">set()</a> or 
+                <a href="#function-addLoadbar">addLoadbar()</a>.</p>
                 
                 <p>This function optionally takes up to two arguments: the first is simply an alias of 
                 <strong>$.fn.dialogbox</strong> to save typing, the second is the event that was triggered.</p>
@@ -684,7 +680,7 @@
                 <a href="#option-cancel">cancel</a>, <a href="#option-open">open</a> and 
                 <a href="#option-close">close</a>).</p>               
                 <h4>Type:</h4>
-                <p>function</p>
+                <p>Function</p>
                 <h4>Default:</h4>
                 <p><a href="http://api.jquery.com/jQuery.noop/">$.noop</a></p>
             </div></div>
@@ -692,13 +688,12 @@
         <li>
             <h3 id="option-cancel">cancel</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Function to be executed if cancel button is clicked or user presses Escape. As with the 
-                <strong>confirm</strong> option, the box will be closed after this function has completed, unless it's been
-                altered.</p>
+                <a href="#option-confirm">confirm</a> option, the box will be closed after this function has completed, 
+                unless it's been altered.</p>
                 <p>This function takes the same arguments as <a href="#option-confirm">confirm</a>. </p>
                 <h4>Type:</h4>
-                <p>function</p>
+                <p>Function</p>
                 <h4>Default:</h4>
                 <p><a href="http://api.jquery.com/jQuery.noop/">$.noop</a></p>
             </div></div>
@@ -706,11 +701,10 @@
         <li>
             <h3 id="option-open">open</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Callback function to be executed before the box has been created and faded onto the page.</p>
                 <p>This function takes the same arguments as <a href="#option-confirm">confirm</a>. </p>
                 <h4>Type:</h4>
-                <p>function</p>
+                <p>Function</p>
                 <h4>Default:</h4>
                 <p><a href="http://api.jquery.com/jQuery.noop/">$.noop</a></p>
             </div></div>
@@ -718,7 +712,6 @@
         <li>
             <h3 id="option-close">close</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Callback function to be executed after the box has been faded out and removed.</p>
                 <p>This function takes the same arguments as <a href="#option-confirm">confirm</a>. </p>
                 <p>For example, in the <a href="#example-4">login box above</a>, we grab a div within a hidden form on the page 
@@ -727,7 +720,7 @@
                  to reset it to its initial state by clearing the fields and removing any 
                 error message.</p>
                 <h4>Type:</h4>
-                <p>function</p>
+                <p>Function</p>
                 <h4>Default:</h4>
                 <p><a href="http://api.jquery.com/jQuery.noop/">$.noop</a></p>
             </div></div>
@@ -735,10 +728,9 @@
         <li>
             <h3 id="option-okText">okText</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Text of OK button.</p>
                 <h4>Type:</h4>
-                <p>string</p>
+                <p>String</p>
                 <h4>Default:</h4>
                 <p>'Ok'</p>
             </div></div>
@@ -746,10 +738,9 @@
         <li>
             <h3 id="option-cancelText">cancelText</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Text of Cancel button.</p>
                 <h4>Type:</h4>
-                <p>string</p>
+                <p>String</p>
                 <h4>Default:</h4>
                 <p>'Cancel'</p>
             </div></div>
@@ -757,10 +748,9 @@
         <li>
             <h3 id="option-promptText">promptText</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Default text of prompt input.</p>
                 <h4>Type:</h4>
-                <p>string</p>
+                <p>String</p>
                 <h4>Default:</h4>
                 <p>(empty string)</p>
             </div></div>
@@ -768,18 +758,26 @@
         <li>
             <h3 id="option-promptType">promptType</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Set this to 'password' if you want the prompt field to be a password input.</p>
                 <h4>Type:</h4>
-                <p>string</p>
+                <p>String</p>
                 <h4>Default:</h4>
                 <p>'text'</p>
             </div></div>
         </li>
         <li>
+            <h3 id="option-loadbar">loadbar</h3>
+            <div><div>
+                <p>Whether to add a loading indicator to the box.</p>
+                <h4>Type:</h4>
+                <p>Boolean</p>
+                <h4>Default:</h4>
+                <p>false</p>
+            </div></div>
+        </li>
+        <li>
             <h3 id="option-focus">focus</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Focus will be placed by default in the first available field in the box, which will be the Ok button
                 if no other form fields have been added. To focus on a specific field, this option 
                 can be supplied as a CSS selector. The target must be a visible form field within the box.</p>
@@ -787,12 +785,12 @@
                 <pre class="js">    $('a.dosomethingawful').dialogbox({
         message: 'Are you sure you want to do this terrible thing?',
         focus: '#dialogbox_cancel', // id of cancel button
-        cancel: function() {
+        confirm: function() {
             // do something awful...
         }
     });</pre>
                 <h4>Type:</h4>
-                <p>string, or anything else to focus in the first available field.</p>
+                <p>String, or anything else to focus in the first available field.</p>
                 <h4>Default:</h4>
                 <p>false</p>
             </div></div>
@@ -800,12 +798,11 @@
         <li>
             <h3 id="option-restore">restore</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>If the box message is a jQuery collection or DOM element, then the box will try to restore the element
                 to its original location in the page when closed. Set this option to <strong>false</strong> 
                 if this is not required.</p>
                 <h4>Type:</h4>
-                <p>boolean</p>
+                <p>Boolean</p>
                 <h4>Default:</h4>
                 <p>true</p>
             </div></div>
@@ -813,10 +810,9 @@
         <li>
             <h3 id="option-preventDefault">preventDefault</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Whether to prevent the default action of the event.</p>
                 <h4>Type:</h4>
-                <p>boolean</p>
+                <p>Boolean</p>
                 <h4>Default:</h4>
                 <p>true</p>
             </div></div>
@@ -824,10 +820,9 @@
         <li>
             <h3 id="option-stopPropagation">stopPropagation</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Whether the event should be prevented from bubbling up the DOM tree.</p>
                 <h4>Type:</h4>
-                <p>boolean</p>
+                <p>Boolean</p>
                 <h4>Default:</h4>
                 <p>true</p>
             </div></div>
@@ -835,7 +830,6 @@
         <li>
             <h3 id="option-position">position</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Offset from window top left; can be supplied as a string containing x and y coordinates, separated by a space , eg 'left 30', or as an array [x, y]. Coordinates can be strings 'left', 'right', 'top', 'bottom', 'center' or pixel value. Boxes can be offset from the right or bottom by supplying negative coordinates. If only one coordinate is supplied, the second will be assumed to be 'center'.</p>
                 <h5>Examples:</h5>
                 <p><strong>'top right'</strong> / <strong>'right top'</strong>, - top right of viewport,<br />
@@ -854,7 +848,7 @@
                 </p>
                 
                 <h4>Type:</h4>
-                <p>string, number or array</p>
+                <p>String, number or array</p>
                 <h4>Default:</h4>
                 <p>'center'</p>
             </div></div>
@@ -862,13 +856,12 @@
         <li>
             <h3 id="option-maskOpacity">maskOpacity</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Opacity of background mask - should be a number between 0 and 1. Background colour and/or images
                 can be set in the stylesheet.</p>
-                <p>This option cannot be changed by <a href="#function-set">$.fn.dialogbox.set()</a> as it's only applied
+                <p>This option cannot be changed by <a href="#function-set">set()</a> as it's only applied
                 when the box is initially faded onto the page.</p>
                 <h4>Type:</h4>
-                <p>number</p>
+                <p>Number</p>
                 <h4>Default:</h4>
                 <p>0.3</p>
             </div></div>
@@ -876,10 +869,9 @@
         <li>
             <h3 id="option-transitions">transitions</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Duration of animations - when the box fades onto the page, or expands/contracts to fit new content. This can be a number in milliseconds, or any of the strings 'slow', 'normal', 'fast' - the same as for any jQuery animation.</p>
                 <h4>Type:</h4>
-                <p>string or number</p>
+                <p>String or number</p>
                 <h4>Default:</h4>
                 <p>'fast'</p>
             </div></div>
@@ -887,12 +879,11 @@
         <li>
             <h3 id="option-easing">easing</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>The type of easing to be used in animations when the box's height changes. 
                 <a href="http://gsgd.co.uk/sandbox/jquery/easing/">jquery.easing</a> is required for anything other
                 than 'swing' or 'linear'. </p>
                 <h4>Type:</h4>
-                <p>string</p>
+                <p>String</p>
                 <h4>Default:</h4>
                 <p>'swing'</p>
             </div></div>
@@ -900,10 +891,9 @@
         <li>
             <h3 id="option-shakes">shakes</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>If the user attempts to focus anywhere on the page outside of the box, it will give a little wobble before returning focus to the first available form field within the box. If you think this shaking is going to piss people off, then by all means set this to false.</p>
                 <h4>Type:</h4>
-                <p>boolean</p>
+                <p>Boolean</p>
                 <h4>Default:</h4>
                 <p>true</p>
             </div></div>
@@ -911,11 +901,10 @@
         <li>
             <h3 id="option-draggable">draggable</h3>
             <div><div>
-                <h4>Description:</h4>
                 <p>Whether the box can be dragged around the page. jQuery UI is not required if this is set to 
                 <strong>false</strong>.</p>
                 <h4>Type:</h4>
-                <p>boolean</p>
+                <p>Boolean</p>
                 <h4>Default:</h4>
                 <p>true</p>
             </div></div>
@@ -1029,7 +1018,7 @@
     or a field name to retrieve the value of that field.</p>
     <p>Alternatively, a key/value pair can be passed to change a single field.</p>
     <h4>Returns</h4>
-    <p>If getting, the value of the selected field, or if multiple fields set or no arguments supplied, an array of objects (equivalent to calling <a href="http://api.jquery.com/serializeArray/">serializeArray()</a> on the box form.
+    <p>If getting, the value of the selected field, or if no arguments supplied, an array of objects (equivalent to calling <a href="http://api.jquery.com/serializeArray/">serializeArray()</a> on the box form.
     If setting, returns $.fn.dialogbox.</p>
     </div></div>
     </li>
@@ -1060,7 +1049,7 @@
     <p>Get or set default options for new boxes.</p> 
     <h4>Arguments</h4>
     <p>If a single arguement is used, this can be an object of key/value pairs of options to be set, or an option name
-    to retrieve the value of that option. Options are the same as for <a href="#function-open">$.fn.dialogbox.open()</a>.</p>
+    to retrieve the value of that option.</p>
     <p>Alternatively, a key/value pair can be passed to change a single option.</p>
     <h4>Returns</h4>
     <p>If getting, the value of the selected option, or a key/value object of all
@@ -1230,7 +1219,7 @@ $(function(){
         text: 'View code',
         href: '#'
     }));
-    $('.slide').click(function() {
+    $('.slide').click(function(e) {
         var $link = $(this),
             $code = $link.parent().next('.code');
         if ($code.css('display') === 'none') {

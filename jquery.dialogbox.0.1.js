@@ -435,7 +435,7 @@
             $('<div/>', {
                 id: 'dialogbox_loadbar',
                 css: { height: buttonholder.outerHeight() + 'px' }
-            }).prependTo(buttonholder);
+            }).appendTo(buttonholder);
             if (Current.isIE6) {
                 $('#dialogbox_loadbar').css('display', 'block'); // ie6 needs to be told again...
             }

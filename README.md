@@ -6,6 +6,8 @@ The boxes are designed to emulate the standard javasript dialogs, but with many 
 behaviour and handling of user data, a slew of methods for reacting to user input, 
 and without the clunkiness and annoyance of regular js dialogs.
 
+This is a very new plugin though, and I don't doubt still has plenty of big, juicy bugs waiting to be discovered...
+
 ## Features:
 
 * Can be created as 'alert', 'confirm' or 'prompt' boxes
@@ -156,35 +158,7 @@ To attach the box to other event types, specify the event in the second argument
         }
     }, 'load');
 Alternatively, a function can be supplied as the first argument to return the required parameters. The argument of this function is the event that was triggered, so that the target element can be located.
-
-In this example, we attach alert dialogs to links to anchors within the page:
-
-#### HTML:
-
-    <p>
-        Doctor Cuddles pet shop sells <a href="#info-dachshunds">dachshunds</a>, <a href="#info-kittens">kittens</a> and <a href="#info-bunnies">bunny rabbits</a>.</p>
-    </p>
-    
-    <p id="info-dachshunds">
-        Dachshunds are small, cuddly little dogs with very short legs (more information on <a href="http://en.wikipedia.org/wiki/Dachshund">wikipedia</a>).
-    </p>
-    <p id="info-kittens">
-        Kittens are lickle baby cats (more information on <a href="http://en.wikipedia.org/wiki/Kitten">wikipedia</a>).
-    </p>
-    <p id="info-bunnies">
-        Rabbits are small mammals in the family Leporidae (more information on <a href="http://en.wikipedia.org/wiki/Rabbit">wikipedia</a>).
-    </p>
-
-#### Javascript:
-
-    // hide all information paragraphs    
-    $('*[id^=info-]').hide();
-    $('a[href^=#info-]').dialogbox(function(e) {
-        // get id of target paragraph and use its content as the dialog message
-        var targetId = $(e.target).attr('href').split('#')[1];
-        return $('#' + targetId).html();
-    });
-And in this next one, we have a table of products, any of which can be deleted. A confirmation dialog is attached to
+In this example, we have a table of products, any of which can be deleted. A confirmation dialog is attached to
 each delete button, and if confirmed, submits the button's form through an ajax request:
 
 #### HTML:
@@ -237,7 +211,7 @@ each delete button, and if confirmed, submits the button's form through an ajax 
                     
                     // submit form through ajax request
                     var $form = $input.parents('form');
-                    $.post('delete.php', $form.serialize(), function(response) {
+                    $.post($form.attr('action'), $form.serialize(), function(response) {
                         
                         // close dialog and update product table with response
                         box.close();
@@ -250,15 +224,13 @@ each delete button, and if confirmed, submits the button's form through an ajax 
             }
         });
     }
-Both of these examples will degrade gracefully if javascript is disabled.
+This will degrade gracefully if javascript is disabled.
 
 ## Options:
 
-This is the full list of options that can be applied; these can be passed when attaching the handler, opening a new box using **$.fn.dialogbox.open()** or changing an existing box with **$.fn.dialogbox.set()**. All options are optional. Default options can be set with **$.fn.dialogbox.config()**
+This is the full list of options that can be applied; these can be passed when attaching the handler, opening a new box using **open()** or changing an existing box with **set()**. All options are optional. Default options can be set with **config()**
 
 ### message
-
-#### Description:
 
 The message to be displayed. If a DOM element is supplied, 
 it will be converted into a jQuery collection.
@@ -267,14 +239,14 @@ Be aware that the box itself is a form, so form fields can be added, but not an 
 If an element from the page is added (as DOM element or jQuery collection) then the script will try to
 restore the element to its original location in the page when the box is closed,
 or if its content is subsequently replaced by another DOM element using 
-**$.fn.dialogbox.set()**. Note that this may
+**set()**. Note that this may
 have unpredictable results if the element's parent or siblings have been moved or deleted since the 
 box was opened. If necessary the **restore** option can be set to
 **false** to prevent the element from being restored.
 
 #### Type:
 
-string, jQuery collection or DOM element
+String, jQuery collection or DOM element
 
 #### Default:
 
@@ -282,21 +254,17 @@ string, jQuery collection or DOM element
 
 ### title
 
-#### Description:
-
 Title bar text.
 
 #### Type:
 
-string
+String
 
 #### Default:
 
 (empty string)
 
 ### type
-
-#### Description:
 
 'alert', 'confirm' or 'prompt'. Similarly to standard javascript dialog boxes, alert shows only 
 one button and will only execute the **confirm** option, 
@@ -307,7 +275,7 @@ options for prompt boxes.
 
 #### Type:
 
-string
+String
 
 #### Default:
 
@@ -315,12 +283,10 @@ string
 
 ### confirm
 
-#### Description:
-
 Function to be executed if ok button is clicked or the form is submitted through the keyboard.
 The box will be automatically closed after this function has executed, unless the function opens a new
-box, or alters the existing box using **$.fn.dialogbox.set()** or 
-**$.fn.dialogbox.addLoadbar()**.
+box, or alters the existing box using **set()** or 
+**addLoadbar()**.
 This function optionally takes up to two arguments: the first is simply an alias of 
 **$.fn.dialogbox** to save typing, the second is the event that was triggered.
 These arguments are taken by all function options (**confirm**, 
@@ -329,7 +295,7 @@ These arguments are taken by all function options (**confirm**,
 
 #### Type:
 
-function
+Function
 
 #### Default:
 
@@ -337,16 +303,14 @@ function
 
 ### cancel
 
-#### Description:
-
 Function to be executed if cancel button is clicked or user presses Escape. As with the 
-**confirm** option, the box will be closed after this function has completed, unless it's been
-altered.
+**confirm** option, the box will be closed after this function has completed, 
+unless it's been altered.
 This function takes the same arguments as **confirm**. 
 
 #### Type:
 
-function
+Function
 
 #### Default:
 
@@ -354,22 +318,18 @@ function
 
 ### open
 
-#### Description:
-
 Callback function to be executed before the box has been created and faded onto the page.
 This function takes the same arguments as **confirm**. 
 
 #### Type:
 
-function
+Function
 
 #### Default:
 
 **$.noop**
 
 ### close
-
-#### Description:
 
 Callback function to be executed after the box has been faded out and removed.
 This function takes the same arguments as **confirm**. 
@@ -381,7 +341,7 @@ error message.
 
 #### Type:
 
-function
+Function
 
 #### Default:
 
@@ -389,13 +349,11 @@ function
 
 ### okText
 
-#### Description:
-
 Text of OK button.
 
 #### Type:
 
-string
+String
 
 #### Default:
 
@@ -403,13 +361,11 @@ string
 
 ### cancelText
 
-#### Description:
-
 Text of Cancel button.
 
 #### Type:
 
-string
+String
 
 #### Default:
 
@@ -417,13 +373,11 @@ string
 
 ### promptText
 
-#### Description:
-
 Default text of prompt input.
 
 #### Type:
 
-string
+String
 
 #### Default:
 
@@ -431,21 +385,42 @@ string
 
 ### promptType
 
-#### Description:
-
 Set this to 'password' if you want the prompt field to be a password input.
 
 #### Type:
 
-string
+String
 
 #### Default:
 
 'text'
 
-### focus
+### loadbar
 
-#### Description:
+Whether to add a loading indicator to the box.
+
+#### Type:
+
+Boolean
+
+#### Default:
+
+false
+
+### className
+
+Adds custom class to the containing form, so the appearance of different boxes
+can be customised with CSS. 
+
+#### Type:
+
+String
+
+#### Default:
+
+(empty string)
+
+### focus
 
 Focus will be placed by default in the first available field in the box, which will be the Ok button
 if no other form fields have been added. To focus on a specific field, this option 
@@ -456,14 +431,14 @@ can be supplied as a CSS selector. The target must be a visible form field withi
     $('a.dosomethingawful').dialogbox({
         message: 'Are you sure you want to do this terrible thing?',
         focus: '#dialogbox_cancel', // id of cancel button
-        cancel: function() {
+        confirm: function() {
             // do something awful...
         }
     });
 
 #### Type:
 
-string, or anything else to focus in the first available field.
+String, or anything else to focus in the first available field.
 
 #### Default:
 
@@ -471,15 +446,13 @@ false
 
 ### restore
 
-#### Description:
-
 If the box message is a jQuery collection or DOM element, then the box will try to restore the element
 to its original location in the page when closed. Set this option to **false** 
 if this is not required.
 
 #### Type:
 
-boolean
+Boolean
 
 #### Default:
 
@@ -487,13 +460,11 @@ true
 
 ### preventDefault
 
-#### Description:
-
 Whether to prevent the default action of the event.
 
 #### Type:
 
-boolean
+Boolean
 
 #### Default:
 
@@ -501,21 +472,17 @@ true
 
 ### stopPropagation
 
-#### Description:
-
 Whether the event should be prevented from bubbling up the DOM tree.
 
 #### Type:
 
-boolean
+Boolean
 
 #### Default:
 
 true
 
 ### position
-
-#### Description:
 
 Offset from window top left; can be supplied as a string containing x and y coordinates, separated by a space , eg 'left 30', or as an array [x, y]. Coordinates can be strings 'left', 'right', 'top', 'bottom', 'center' or pixel value. Boxes can be offset from the right or bottom by supplying negative coordinates. If only one coordinate is supplied, the second will be assumed to be 'center'.
 
@@ -534,24 +501,34 @@ horizontally centred, 50 pixels from the top.
 
 #### Type:
 
-string, number or array
+String, number or array
 
 #### Default:
 
 'center'
 
-### maskOpacity
+### width
 
-#### Description:
+Box width, in pixels.
+
+#### Type:
+
+Number
+
+#### Default:
+
+270
+
+### maskOpacity
 
 Opacity of background mask - should be a number between 0 and 1. Background colour and/or images
 can be set in the stylesheet.
-This option cannot be changed by **$.fn.dialogbox.set()** as it's only applied
+This option cannot be changed by **set()** as it's only applied
 when the box is initially faded onto the page.
 
 #### Type:
 
-number
+Number
 
 #### Default:
 
@@ -559,13 +536,11 @@ number
 
 ### transitions
 
-#### Description:
-
 Duration of animations - when the box fades onto the page, or expands/contracts to fit new content. This can be a number in milliseconds, or any of the strings 'slow', 'normal', 'fast' - the same as for any jQuery animation.
 
 #### Type:
 
-string or number
+String or number
 
 #### Default:
 
@@ -573,15 +548,13 @@ string or number
 
 ### easing
 
-#### Description:
-
 The type of easing to be used in animations when the box's height changes. 
 **jquery.easing** is required for anything other
 than 'swing' or 'linear'. 
 
 #### Type:
 
-string
+String
 
 #### Default:
 
@@ -589,13 +562,11 @@ string
 
 ### shakes
 
-#### Description:
-
 If the user attempts to focus anywhere on the page outside of the box, it will give a little wobble before returning focus to the first available form field within the box. If you think this shaking is going to piss people off, then by all means set this to false.
 
 #### Type:
 
-boolean
+Boolean
 
 #### Default:
 
@@ -603,14 +574,12 @@ true
 
 ### draggable
 
-#### Description:
-
 Whether the box can be dragged around the page. jQuery UI is not required if this is set to 
 **false**.
 
 #### Type:
 
-boolean
+Boolean
 
 #### Default:
 
@@ -716,7 +685,7 @@ Alternatively, a key/value pair can be passed to change a single field.
 
 #### Returns
 
-If getting, the value of the selected field, or if multiple fields set or no arguments supplied, an array of objects (equivalent to calling **serializeArray()** on the box form.
+If getting, the value of the selected field, or if no arguments supplied, an array of objects (equivalent to calling **serializeArray()** on the box form.
 If setting, returns $.fn.dialogbox.
 
 ### serialize()
@@ -743,7 +712,7 @@ Get or set default options for new boxes.
 #### Arguments
 
 If a single arguement is used, this can be an object of key/value pairs of options to be set, or an option name
-to retrieve the value of that option. Options are the same as for **$.fn.dialogbox.open()**.
+to retrieve the value of that option.
 Alternatively, a key/value pair can be passed to change a single option.
 
 #### Returns

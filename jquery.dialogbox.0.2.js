@@ -38,7 +38,7 @@
      */
         Current = {
             dragging: false,
-            focussed: false,  
+            focussed: false,
             id: 0,
             isIE6: $.browser.msie && $.browser.version.substr(0, 1) < 7 ? true : false,
             left: 0,
@@ -49,7 +49,8 @@
             restoreTo: {},
             srcEvent: false,
             top: 0,
-            triggered: false
+            triggered: false,
+            width: 0
         };
     
     /**
@@ -422,7 +423,7 @@
             setId();
             var buttonholder = $('#dialogbox_buttons');
             $('#dialogbox_ok').focus();
-            $('#dialogbox_buttons input').css('opacity', 0);
+            $('#dialogbox_buttons input').css('visibility', 'hidden');
             $('<div/>', {
                 id: 'dialogbox_loadbar',
                 css: { height: buttonholder.outerHeight() + 'px', width: buttonholder.outerWidth() + 'px' }
@@ -441,7 +442,7 @@
      */
     $.fn.dialogbox.removeLoadbar = function() {
     
-        $('#dialogbox_buttons input').css('opacity', 1);
+        $('#dialogbox_buttons input').css('visibility', 'visible');
         $('#dialogbox_loadbar').remove();
         addEvents();
         return this;

@@ -4,11 +4,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Demos</title>
-    <link rel="stylesheet" type="text/css" href="../jquery.dialogbox.0.1.css" />
+    <title>Tests</title>
+    <link rel="stylesheet" type="text/css" href="../jquery.dialogbox.0.2.css" />
+    <style type="text/css">
+        * html #dialogbox_message_inner div {
+            height: 1%;
+        }
+    </style>
     <script type="text/javascript">//<![CDATA[    	    document.write('<style type="text/css"> .js-hide { display: none; } </style>');    	//]]>    </script>
 </head>
 <body>
+    <h1>Tests</h1>
+    <h2>1. Information paragraphs</h2>
     <p>
         Doctor Cuddles pet shop sells <a href="#info-dachshunds">dachshunds</a>, <a href="#info-kittens">kittens</a> and <a href="#info-bunnies">bunny rabbits</a>.
     </p>
@@ -42,12 +49,12 @@
     
 <script type="text/javascript" src="jquery-1.4.1.min.js"></script>
 <script type="text/javascript" src="jquery-ui-1.7.2.custom.min.js"></script>
-<script type="text/javascript" src="../jquery.dialogbox.0.1.js"></script>
+<script type="text/javascript" src="../jquery.dialogbox.0.2.js"></script>
 <script type="text/javascript">	//<![CDATA[(function($) {
     
 $(function() {
     
-    $.fn.dialogbox.preload();
+    $.fn.dialogbox.preload().config('transitions', $.browser.msie && $.browser.version.substr(0, 1) < 7 ? 0 : 'normal');
     
     // hide all information paragraphs    
     $('*[id^=info-]').hide();
@@ -78,7 +85,7 @@ $(function() {
     }
     
     $('#product-add-form').hide().before('<a href="#" id="product-add">Add product</a>');
-    $('#product-add').unbind().dialogbox({
+    $('#product-add').dialogbox({
         title: 'Add product',
         message: $('#product-add-form div'),
         type: 'confirm',
@@ -92,7 +99,7 @@ $(function() {
        
         $('.product-edit-form').hide().before('<a href="#" class="product-edit">Edit</a>');
         $('.product-edit-form input[type=submit]').hide();
-        $('.product-edit').unbind().dialogbox(function(e) {
+        $('.product-edit').dialogbox(function(e) {
             var $form = $(e.target).next();
             return {
                 title: 'Edit product',
@@ -103,7 +110,7 @@ $(function() {
         });
         
         // trigger confirm dialog on each submit button in table
-        $('input.product-delete').unbind().dialogbox(function(e) {
+        $('input.product-delete').dialogbox(function(e) {
         
             // find the name of the product to be deleted,
             // so it can be shown in the confirmation message

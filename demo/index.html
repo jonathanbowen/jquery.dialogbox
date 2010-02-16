@@ -524,34 +524,7 @@
   
     <p>Alternatively, a function can be supplied as the first argument to return the required parameters. The argument of this function is the event that was triggered, so that the target element can be located.</p>
     
-    <p>
-        In this example, we attach alert dialogs to links to anchors within the page:
-    </p>
-    <h6>HTML:</h6>
-    <pre class="html">    &lt;p&gt;
-        Doctor Cuddles pet shop sells &lt;a href=&quot;#info-dachshunds&quot;&gt;dachshunds&lt;/a&gt;, &lt;a href=&quot;#info-kittens&quot;&gt;kittens&lt;/a&gt; and &lt;a href=&quot;#info-bunnies&quot;&gt;bunny rabbits&lt;/a&gt;.&lt;/p&gt;
-    &lt;/p&gt;
-    
-    &lt;p id=&quot;info-dachshunds&quot;&gt;
-        Dachshunds are small, cuddly little dogs with very short legs (more information on &lt;a href=&quot;http://en.wikipedia.org/wiki/Dachshund&quot;&gt;wikipedia&lt;/a&gt;).
-    &lt;/p&gt;
-    &lt;p id=&quot;info-kittens&quot;&gt;
-        Kittens are lickle baby cats (more information on &lt;a href=&quot;http://en.wikipedia.org/wiki/Kitten&quot;&gt;wikipedia&lt;/a&gt;).
-    &lt;/p&gt;
-    &lt;p id=&quot;info-bunnies&quot;&gt;
-        Rabbits are small mammals in the family Leporidae (more information on &lt;a href=&quot;http://en.wikipedia.org/wiki/Rabbit&quot;&gt;wikipedia&lt;/a&gt;).
-    &lt;/p&gt;
-    </pre>
-    <h6>Javascript:</h6>
-    <pre class="js">    // hide all information paragraphs    
-    $('*[id^=info-]').hide();
-    $('a[href^=#info-]').dialogbox(function(e) {
-        // get id of target paragraph and use its content as the dialog message
-        var targetId = $(e.target).attr('href').split('#')[1];
-        return $('#' + targetId).html();
-    });</pre>
-    
-    <p>And in this next one, we have a table of products, any of which can be deleted. A confirmation dialog is attached to
+    <p>In this example, we have a table of products, any of which can be deleted. A confirmation dialog is attached to
      each delete button, and if confirmed, submits the button's form through an ajax request:</p>
     <h6>HTML:</h6>
     <pre class="html">    &lt;div id=&quot;product-holder&quot;&gt;
@@ -600,7 +573,7 @@
                     
                     // submit form through ajax request
                     var $form = $input.parents('form');
-                    $.post('delete.php', $form.serialize(), function(response) {
+                    $.post($form.attr('action'), $form.serialize(), function(response) {
                         
                         // close dialog and update product table with response
                         box.close();
@@ -613,7 +586,7 @@
             }
         });
     }</pre>
-    <p>Both of these examples will degrade gracefully if javascript is disabled.</p>
+    <p>This will degrade gracefully if javascript is disabled.</p>
     
     <h2 id="options">Options:</h2>
     <p>This is the full list of options that can be applied; these can be passed when attaching the handler, opening a new box using <a href="#function-open">open()</a> or changing an existing box with <a href="#function-set">set()</a>. All options are optional. Default options can be set with <a href="#function-config">config()</a></p>
@@ -779,6 +752,17 @@
             </div></div>
         </li>
         <li>
+            <h3 id="option-className">className</h3>
+            <div><div>
+                <p>Adds custom class to the containing form, so the appearance of different boxes
+                can be customised with CSS. </p>
+                <h4>Type:</h4>
+                <p>String</p>
+                <h4>Default:</h4>
+                <p>(empty string)</p>
+            </div></div>
+        </li>
+        <li>
             <h3 id="option-focus">focus</h3>
             <div><div>
                 <p>Focus will be placed by default in the first available field in the box, which will be the Ok button
@@ -854,6 +838,16 @@
                 <p>String, number or array</p>
                 <h4>Default:</h4>
                 <p>'center'</p>
+            </div></div>
+        </li>
+        <li>
+            <h3 id="option-width">width</h3>
+            <div><div>
+                <p>Box width, in pixels.</p>
+                <h4>Type:</h4>
+                <p>Number</p>
+                <h4>Default:</h4>
+                <p>270</p>
             </div></div>
         </li>
         <li>
@@ -1450,6 +1444,7 @@ $(function(){
             });
             $link.stop().animate({paddingRight: '5px'});
         }
+        return false;
     });
     
     function html_entity_decode(str) {

@@ -92,6 +92,7 @@
 }
 * html #dialogbox_buttons {
     padding-left: 16px;
+    z-index: 1000;
 }
 * html #dialogbox_message, * html #dialogbox_inner {
     height: 1%;

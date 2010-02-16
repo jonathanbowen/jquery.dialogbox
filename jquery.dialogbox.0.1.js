@@ -47,7 +47,8 @@
             paddingBottom: 0,
             restoreTo: {},
             srcEvent: false,
-            top: 0
+            top: 0,
+            triggered: false
         };
     
     /**
@@ -61,6 +62,7 @@
     
         $(this)[evt || 'click'](function(e) {
             Current.srcEvent = e;
+            Current.triggered = true;
             $.fn.dialogbox.open(typeof options === 'function' ? options(e) : options);
         });
         return this;
@@ -82,15 +84,13 @@
 
         // store parameters in a variable that can be accessed by other functions 
         options = typeof options === 'object' ? options : { message: options };
+        typeof options.open === 'function' && options.open($.fn.dialogbox, Current.srcEvent);
         var pos = options.position;
         options = $.extend({}, Config, options);
         
         // very hackish fix that prevents box from being moved to default position when 
         // replacing an existing box, unless position explicitly set
         options.position = pos;
-        if (typeof options.open === 'function') {
-            options.open($.fn.dialogbox, Current.srcEvent);
-        }
         var callbackRan = false;
         $('<div/>', {
             id: 'dialogbox_mask',
@@ -138,14 +138,14 @@
             $(window).scroll($.fn.dialogbox.adjustPosition).resize($.fn.dialogbox.adjustPosition);
         }
         
-        if (Current.srcEvent) {
-            if (options.preventDefault) {
-                Current.srcEvent.preventDefault();
-            }
-            if (options.stopPropagation) {
-                Current.srcEvent.stopPropagation();
-            }
+        // only prevent default / stop propagation when box first triggered
+        // - not when called from callback function
+        if (Current.triggered && Current.srcEvent) {
+            
+            options.preventDefault && Current.srcEvent.preventDefault();
+            options.stopPropagation && Current.srcEvent.stopPropagation();
         }
+        Current.triggered = false;
         
         return this; 
     };
@@ -170,13 +170,14 @@
             return this;
         }
 
+        // need to store the box's initial bottom padding
+        // as this will be animated to accomodate changing content
         Current.paddingBottom = Current.paddingBottom || Math.round(inner.css('padding-bottom').replace('px', ''));
 
         // see if there's an existing box
         // if so, get its dimensions for transition animation
         // (this will not be true if called straight from open())
         if ($('#dialogbox_ok').length) {
-
             storeDimensions();
             $('#dialogbox_loadbar').remove();
         }
@@ -204,6 +205,7 @@
                 // if the message is a DOM element, save its location in the DOM so it can be restored on box close
                 if (parent.length && !parent.parents('#dialogbox_outer').length) {
                     
+                    // if we've already got a saved DOM element, restore it before saving the new one
                     if (!$.isEmptyObject(Current.restoreTo)) {
                         restore();
                     }
@@ -229,7 +231,7 @@
         // merge parameters with existing box parameters
         $.extend(Current.options, options);
 
-        buttons.attr('id', Current.options.type === 'alert' ? 'dialogbox_button' : 'dialogbox_buttons').empty();
+        buttons.attr('id', 'dialogbox_button' + (Current.options.type === 'alert' ? '' : 's')).empty();
         $('<input/>', {
             id: 'dialogbox_ok',
             type: 'submit',
@@ -323,7 +325,7 @@
                             ((k ? $(window).height() - outer.outerHeight() + ieAdjust 
                                 : (($(document).width()) - outer.outerWidth())
                               ) - num)
-                            : num + (k ? ieAdjust : 0 )
+                            : num + (k ? ieAdjust : 0)
                         )
                     ) + 'px';                               
                 }
@@ -407,9 +409,7 @@
                     $('select').css({display: ''});
                 }
                 Current.focussed = false;
-                if (typeof callback === 'function') {
-                    callback($.fn.dialogbox, Current.srcEvent);
-                }
+                typeof callback === 'function' && callback($.fn.dialogbox, Current.srcEvent);
             });
         }
         return this;
@@ -528,7 +528,7 @@
             });
         }
         else {
-            var $fields = $('*[name=' + n + ']'), 
+            var $fields = $('*[name=' + n + ']'),
                 type = $fields.attr('type'),
                 setting = v !== undefined;
             if (type === 'radio' || type === 'checkbox') {
@@ -538,7 +538,7 @@
                 $fields.each(function() {
                     var $field = $(this), val = $field.val();
                     if (setting) {
-                        $field.get(0).checked = $.inArray(val, v) > -1 ? true : false;
+                        $field.get(0).checked = $.inArray(val, v) > -1;
                     }
                     else if ($field.get(0).checked) {
                         result = result && typeof result !== 'object' ? [result] : result;
@@ -574,8 +574,9 @@
      * @return {Boolean}
      */
     $.fn.dialogbox.isOpen = function() {
+        
         return $('#dialogbox_outer').length > 0;
-    }
+    };
     
     /**
      * Just passes the box form to jquery serialize() function
@@ -729,44 +730,40 @@
      */
     function addEvents() {
         
-        var outer = $('#dialogbox_outer'), id = setId();
-        
         $('#dialobox_mask, #dialogbox_cancel').unbind();
         $('#dialogbox_outer').unbind('submit');
         $('#dialogbox_outer').unbind('keydown');
         
-        // ok and cancel functions 
-        var func = function(a) {
+        var outer = $('#dialogbox_outer'),
+            id = setId(),
 
-            // don't allow user to close box if loadbar is present
-            if (!$('#dialogbox_loadbar').length) {
-                
-                if (typeof Current.options[a] === 'function') {
-                    Current.options[a]($.fn.dialogbox, Current.srcEvent);
+            // ok and cancel functions 
+            func = function(a) {
+
+                // don't allow user to close box if loadbar is present
+                if (!$('#dialogbox_loadbar').length) {
+                    
+                    typeof Current.options[a] === 'function' && Current.options[a]($.fn.dialogbox, Current.srcEvent);
+                    $.fn.dialogbox.close(Current.options.close, false, id);
                 }
-                $.fn.dialogbox.close(Current.options.close, false, id);
-            }
-            return false;
-        };
-        var confirm = function() {
-            $('#dialogbox_ok').addClass('dialogbox_active');
-            return func('confirm');
-        };
-        var cancel = function() {
-            $('#dialogbox_cancel').addClass('dialogbox_active');
-            return func('cancel');
-        };
+                return false;
+            },
+            confirm = function() {
+                $('#dialogbox_ok').addClass('dialogbox_active');
+                return func('confirm');
+            },
+            cancel = function() {
+                $('#dialogbox_cancel').addClass('dialogbox_active');
+                return func('cancel');
+            };
         outer.submit(confirm);
         
         // don't allow separate cancel function for alert boxes
         Current.onCancel = Current.options.type !== 'alert' ? cancel : confirm; 
 
-        $('#dialogbox_cancel').click(cancel);
-        
+        $('#dialogbox_cancel').click(cancel); 
         outer.keydown(keydown);
-        
         $(document).keydown($.fn.dialogbox.focus);
-        
         $('#dialogbox_mask').mousedown($.fn.dialogbox.shake);
         $('body').children('*[id!=dialogbox_outer]').focusin($.fn.dialogbox.shake);
     }
@@ -777,15 +774,13 @@
     function restore() {
         
         if (Current.options.restore) {
-            if (Current.restoreTo.next && Current.restoreTo.next.length) {
-                Current.restoreTo.next.before(Current.options.message);
-            }
-            else if (Current.restoreTo.previous && Current.restoreTo.previous.length) {
-                Current.restoreTo.previous.after(Current.options.message);
-            }
-            else if (Current.restoreTo.parent && Current.restoreTo.parent.length) {
-                Current.restoreTo.parent.append(Current.options.message);
-            }
+            var r = Current.restoreTo;
+            $.each({next:'before', previous:'after', parent:'append'}, function(k, v) {
+            	if (r[k] && r[k].length) {
+            		r[k][v](Current.options.message);
+            		return false;
+            	}
+            });   
         }
         Current.restoreTo = {};
     }

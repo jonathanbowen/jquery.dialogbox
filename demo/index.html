@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Dialogbox - jQuery dialog boxes</title>
-    <link rel="stylesheet" type="text/css" href="../jquery.dialogbox.0.1.css" />
+    <link rel="stylesheet" type="text/css" href="../jquery.dialogbox.0.2.css" />
 <link type="text/css" rel="stylesheet" href="dp.SyntaxHighlighter/Styles/SyntaxHighlighter.css" />
 
 <script type="text/javascript" src="dp.SyntaxHighlighter/Scripts/shCore.js"></script>
@@ -156,9 +156,6 @@
         font-weight: normal;
     }
 
-    ul li > div {
-        
-    }
     #container .slide-list li > div > div, .code > div {
         
         background: #fff;
@@ -169,6 +166,9 @@
     }
     div.code > div  {
         padding-top: 10px;
+    }
+    .code {
+        min-height: 1px;
     }
     .slide-list h3 {
         margin: 0;
@@ -1079,7 +1079,7 @@
 </div> 
 <script type="text/javascript" src="jquery-1.4.1.min.js"></script>
 <script type="text/javascript" src="jquery-ui-1.7.2.custom.min.js"></script>
-<script type="text/javascript" src="../jquery.dialogbox.0.1.min.js"></script>
+<script type="text/javascript" src="../jquery.dialogbox.0.2.js"></script>
 <script type="text/javascript"> 
 //<![CDATA[
 
@@ -1389,6 +1389,9 @@ $(function(){
     // smooth scrolling to anchors
     $('a[href*=#]').click(function() {
     
+        if ($(this).attr('id')) {
+            return;
+        }
         if (location.pathname.replace(/^\//,'') === this.pathname.replace(/^\//,'')
             && location.hostname === this.hostname) {
             
@@ -1462,7 +1465,7 @@ function alert(message) {
 
 //]]>
 </script>
-<!--[if lte IE 6]>
+<!--[if lte IE 3]>
 <script src="DD_belatedPNG_0.0.8a-min.js"></script>
 <script>
   /* EXAMPLE */

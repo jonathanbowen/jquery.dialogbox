@@ -10,6 +10,7 @@
         Config = {
             cancel: $.noop,
             cancelText: 'Cancel',
+            className: '',
             close: $.noop,
             confirm: $.noop,
             draggable: true,
@@ -29,7 +30,8 @@
             title: '',
             transitions: 'fast',
             type: 'alert',
-            shakes: true
+            shakes: true,
+            width: 270
         },
     /**
      * Variables for storing current box state - only accessed internally
@@ -44,7 +46,6 @@
             onCancel: $.noop,
             options: {},
             outerHeight: 0,
-            paddingBottom: 0,
             restoreTo: {},
             srcEvent: false,
             top: 0,
@@ -100,8 +101,8 @@
             action: '',
             onsubmit: 'return false',
             id: 'dialogbox_outer',
-            'class': 'dialogbox_' + options.type + ($.browser.msie ? ' dialogbox_ie' : ''),
-            html: '<div id="dialogbox_handle"></div><div id="dialogbox_inner"><div id="dialogbox_message"><div id="dialogbox_message_inner"></div></div><div id="dialogbox_buttons"></div></div>'
+            'class': 'dialogbox_' + options.type + ' ' + options.className + ($.browser.msie ? ' dialogbox_ie' : ''),
+            html: '<div id="dialogbox_top_left"></div><div id="dialogbox_top_right"></div><div id="dialogbox_handle"><div id="dialogbox_handle_inner"></div></div><div id="dialogbox_inner"><div id="dialogbox_message"><div id="dialogbox_bottom_left"></div><div id="dialogbox_bottom_right"></div><div id="dialogbox_message_inner"></div><div id="dialogbox_buttons"></div></div></div>'
         })
         ).appendTo($('body')).hide().fadeIn(Current.outerHeight ? 0 : options.transitions, function() {
             
@@ -170,10 +171,6 @@
             return this;
         }
 
-        // need to store the box's initial bottom padding
-        // as this will be animated to accomodate changing content
-        Current.paddingBottom = Current.paddingBottom || Math.round(inner.css('padding-bottom').replace('px', ''));
-
         // see if there's an existing box
         // if so, get its dimensions for transition animation
         // (this will not be true if called straight from open())
@@ -225,13 +222,13 @@
         }
         
         if (options.title !== undefined) {
-            $('#dialogbox_handle').text(options.title);
+            $('#dialogbox_handle_inner').text(options.title);
         }
 
         // merge parameters with existing box parameters
         $.extend(Current.options, options);
-
-        buttons.attr('id', 'dialogbox_button' + (Current.options.type === 'alert' ? '' : 's')).empty();
+        
+        buttons.empty();
         $('<input/>', {
             id: 'dialogbox_ok',
             type: 'submit',
@@ -254,32 +251,16 @@
                 // using options rather than Current.options here,
                 // because we don't want an inherited option to overwrite any user-entered data
                 value: options.promptText !== undefined ? options.promptText : promptVal
-            })).appendTo(msgholder);
+            })).appendTo(msgdiv);
         }
 
         // sort out box dimensions and perform transitions if necessary
-        inner.css('padding-bottom', 
-            (Current.paddingBottom + $('#dialogbox_button, #dialogbox_buttons').outerHeight()) + 'px' );
-        var w = 0, h = 0;
-        $('#dialogbox_button input, #dialogbox_buttons input').each(function() {
-            w += $(this).css('margin-left', 0).outerWidth(true);
-            h = $(this).outerHeight(true);
-        });
-
-        // should just add a margin, but ie6 doubles it, so use a span instead
-        buttons.find('span').remove();
-        $('<span/>', {css: {
-            float: 'left',
-            width: ((outer.outerWidth() / 2) - (w / 2)) + 'px',
-            height: h + 'px',
-            display: 'inline'
-        }}).prependTo(buttons);
-
         $('#dialogbox_outer input[type=hidden]').hide();
-        var newHeight = msgholder.css('height', 'auto').height(),
+        var newHeight = msgdiv.css('height', 'auto').css('overflow', 'visible').height(),
             oldHeight = Current.msgHeight || newHeight,
-            diff = newHeight - oldHeight,
-            ieAdjust = Current.isIE6 ? $(document).scrollTop() : 0;
+            ieAdjust = Current.isIE6 ? $(document).scrollTop() : 0, 
+            hDiff = newHeight - oldHeight,
+            wDiff = Current.width ? Current.options.width - parseFloat(Current.width.replace('px', '')) : 0;
         
         if (!Current.outerHeight || options.position !== undefined) {
 
@@ -309,13 +290,14 @@
                             css[d] = $(window).height() - outer.outerHeight();
                             break;
                         case 'right':
-                            css[d] = $(document).width() - outer.outerWidth();
+                            css[d] = $(document).width() - (Current.options.width);
+                            
                     }
                 }
                 else if (!coord.match(/^[\d\.-]+(px)?$/)) {
                     
                     css[d] = (k ? (ieAdjust + ($(window).height() / 2) - (outer.outerHeight() / 2))
-                                : (($(document).width() / 2) - (outer.outerWidth() / 2))) + 'px';
+                                : (($(document).width() / 2) - (Current.options.width / 2)));
                 }
                 else {
                     css[d] = coord.replace(/[^\d\.-]+/g, '');
@@ -323,17 +305,22 @@
                     css[d] = (
                         (css[d].substr(0, 1) === '-' ? 
                             ((k ? $(window).height() - outer.outerHeight() + ieAdjust 
-                                : (($(document).width()) - outer.outerWidth())
+                                : ($(document).width() - Current.options.width)
                               ) - num)
                             : num + (k ? ieAdjust : 0)
                         )
-                    ) + 'px';                               
+                    );                               
                 }
             });
+
+            css.top += 'px';
+            css.left = (parseFloat(css.left) > 0 ? css.left : 0) + 'px';
+            css.width = Current.options.width + 'px';
             if (Current.outerHeight) {
                 outer.css({
                     top: Current.top,
-                    left: Current.left
+                    left: Current.left,
+                    width: Current.width
                 }).animate(css, Current.options.transitions, Current.options.easing, $.fn.dialogbox.adjustPosition);
             } 
             else {
@@ -344,14 +331,17 @@
         else {
             outer.stop().css({
                 top: Current.top,
-                left: Current.left
+                left: Current.left,
+                width: Current.width
             }).animate({
-                top: (diff > 0 ? '-' : '+') + '=' + Math.abs(diff / 2)
+                top: (hDiff > 0 ? '-' : '+') + '=' + Math.abs(hDiff / 2),
+                width: Current.options.width + 'px',
+                left: (parseFloat(Current.left.replace('px', '')) - (wDiff / 2)) + 'px'
             }, Current.options.transitions, Current.options.easing, $.fn.dialogbox.adjustPosition);
         }
         
-        msgholder.stop().css('height', oldHeight + 'px').animate({
-            height: (diff > 0 ? '+' : '-') + '=' + Math.abs(diff)
+        msgdiv.stop().css('overflow', 'hidden').css('height', oldHeight + 'px').animate({
+            height: (hDiff > 0 ? '+' : '-') + '=' + Math.abs(hDiff)
         }, Current.options.transitions, Current.options.easing, $.fn.dialogbox.focus);
 
         addEvents();
@@ -430,11 +420,12 @@
             // reset box id: so this function can be included within confirm or cancel functions
             // without the box being immediately closed after those functions have completed
             setId();
-            var buttonholder = $('#dialogbox_buttons, #dialogbox_button');
+            var buttonholder = $('#dialogbox_buttons');
             $('#dialogbox_ok').focus();
+            $('#dialogbox_buttons input').css('opacity', 0);
             $('<div/>', {
                 id: 'dialogbox_loadbar',
-                css: { height: buttonholder.outerHeight() + 'px' }
+                css: { height: buttonholder.outerHeight() + 'px', width: buttonholder.outerWidth() + 'px' }
             }).appendTo(buttonholder);
             if (Current.isIE6) {
                 $('#dialogbox_loadbar').css('display', 'block'); // ie6 needs to be told again...
@@ -450,6 +441,7 @@
      */
     $.fn.dialogbox.removeLoadbar = function() {
     
+        $('#dialogbox_buttons input').css('opacity', 1);
         $('#dialogbox_loadbar').remove();
         addEvents();
         return this;
@@ -832,8 +824,9 @@
     function storeDimensions() {
 
         var outer = $('#dialogbox_outer');
-        Current.msgHeight = $('#dialogbox_message').height();
-        Current.outerHeight = outer.outerHeight();  
+        Current.msgHeight = $('#dialogbox_message_inner').height();
+        Current.outerHeight = outer.outerHeight();
+        Current.width = outer.css('width');
         Current.top = outer.css('top');
         Current.left = outer.css('left');
     }

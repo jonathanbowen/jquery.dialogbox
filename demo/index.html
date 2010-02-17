@@ -467,6 +467,36 @@
         }
     });</pre></div></div>
     </div>
+    
+    <div class="example"><p><a href="#nojs" id="example-5">Morphing demonstration</a></p>
+    <div class="code"><div><pre class="js">    $('#example-5').dialogbox({
+        message: 'Click \'Morph\' to see me change!',
+        type: 'confirm',
+    	title: 'Morphing box',
+    	transitions: 'slow',
+    	okText: 'Morph',
+    	cancelText: 'Close',
+        confirm: function(b) {
+            var x = Math.random() * 700,
+                y = Math.random() * 500,
+                w = 250 + (Math.random() * 200),
+                s = 'some words... ',
+                m = s,
+                r = Math.random() * 15,
+                i = 0;
+            while (i < r) {
+                m += s;
+                i++;
+            }
+            b.set({
+                message: m,
+                position: [x, y],
+                width: w
+            });
+        }
+    });</pre></div></div>
+    </div>
+    
     <!-- nomd -->
     <form id="loginform" method="post" action="login.php">
         <fieldset>
@@ -1151,6 +1181,34 @@ $(function(){
         close: function() {
             $('#loginform-inner span').empty();
             $('#loginform').get(0).reset();
+        }
+    });
+    
+    // exampe 5: morphing demo
+    $('#example-5').dialogbox({
+        message: 'Click \'Morph\' to see me change!',
+        type: 'confirm',
+    	title: 'Morphing box',
+    	transitions: 'slow',
+    	okText: 'Morph',
+    	cancelText: 'Close',
+        confirm: function(b) {
+            var x = Math.random() * 700,
+                y = Math.random() * 500,
+                w = 250 + (Math.random() * 200),
+                s = 'some words... ',
+                m = s,
+                r = Math.random() * 15,
+                i = 0;
+            while (i < r) {
+                m += s;
+                i++;
+            }
+            b.set({
+                message: m,
+                position: [x, y],
+                width: w
+            });
         }
     });
     

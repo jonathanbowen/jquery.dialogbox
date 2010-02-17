@@ -255,13 +255,16 @@
             })).appendTo(msgdiv);
         }
 
-        // sort out box dimensions and perform transitions if necessary
+        // sort out box dimensions and perform transitions if necessary 
+        outer.css('width', Current.options.width + 'px'); 
         $('#dialogbox_outer input[type=hidden]').hide();
         var newHeight = msgdiv.css('height', 'auto').css('overflow', 'visible').height(),
             oldHeight = Current.msgHeight || newHeight,
             ieAdjust = Current.isIE6 ? $(document).scrollTop() : 0, 
             hDiff = newHeight - oldHeight,
-            wDiff = Current.width ? Current.options.width - parseFloat(Current.width.replace('px', '')) : 0;
+            wDiff = Current.width ? Current.options.width - parseFloat(Current.width.replace('px', '')) : 0;  
+        Current.width && outer.css('width', Current.width + 'px');
+   //     outer.css('width', Current.width ? Current.width + 'px' : Current.options.width + 'px');
         
         if (!Current.outerHeight || options.position !== undefined) {
 

@@ -96,6 +96,7 @@
         var callbackRan = false;
         $('<div/>', {
             id: 'dialogbox_mask',
+            'class': options.className,
             css: { height: $(document).height() + 'px', opacity: options.maskOpacity }
         }).add(
         $('<form/>', {
@@ -198,21 +199,18 @@
             }
             else {
                 options.message = options.message instanceof jQuery ? options.message : $(options.message);
-                var parent = options.message.parent();
                 
-                // if the message is a DOM element, save its location in the DOM so it can be restored on box close
-                if (parent.length && !parent.parents('#dialogbox_outer').length) {
-                    
-                    // if we've already got a saved DOM element, restore it before saving the new one
-                    if (!$.isEmptyObject(Current.restoreTo)) {
-                        restore();
-                    }
-                    Current.restoreTo = {
-                        parent: parent,
-                        next: options.message.next(),
-                        previous: options.message.prev()
-                    };
-                }
+                // if the message is DOM element(s), save location in the DOM so it/they can be restored on box close
+                // if we've already got saved elements, restore before saving the new ones
+                restore();
+                options.message.each(function(i) {
+                    var $this = $(this);
+                    Current.restoreTo[i] = {
+                        parent: $this.parent(),
+                        next: $this.next(),
+                        previous: $this.prev()
+                	}
+                });
                 msgdiv.append(options.message);
             }
             // repopulate the form
@@ -313,7 +311,7 @@
                               ) - num)
                             : num + (k ? ieAdjust : 0)
                         )
-                    );                               
+                    );                            
                 }
             });
 
@@ -633,7 +631,7 @@
             
             var top = offset.top - $(document).scrollTop(), left = offset.left;
             if (top < 0) {
-                css.top = '+=' + (Math.abs(top));
+                css.top = 0; //'+=' + (Math.abs(top));
             }
             else {
                 var boxHeight = outer.outerHeight(), winHeight = $(window).height();
@@ -651,7 +649,10 @@
                 }
             }
             if (!$.isEmptyObject(css)) {
-                outer.stop().animate(css, Current.options.transitions, Current.options.easing, storeDimensions);
+                outer.stop().animate(css, Current.options.transitions, Current.options.easing, function() {
+                    storeDimensions();
+                    $.fn.dialogbox.focus();
+                });
             }
         }
         
@@ -663,7 +664,7 @@
      * 
      * @return {Object} $.fn.dialogbox
      */
-    $.fn.dialogbox.focus = function() {// return;
+    $.fn.dialogbox.focus = function() {
 
         // when using form elements from the page,
         // ie removes focus from updated boxes when the mouse is moved or user attempts to submit by pressing Enter
@@ -679,21 +680,7 @@
                     $(Current.options.focus).parents('#dialogbox_inner').length ? 
                     $(Current.options.focus) : 
                     $(fields[0])
-                );              
-            fields.unbind('focus')
-                .unbind('blur')
-                .unbind('mouseover')
-                .unbind('mouseout')
-                .removeClass('dialogbox_focus')
-                .focus(function() {
-                    Current.focussed = $(this).addClass('dialogbox_focus');
-                }).blur(function() {
-                    $(this).removeClass('dialogbox_focus');
-                }).mouseover(function() {
-                    $(this).addClass('dialogbox_hover');
-                }).mouseout(function() {
-                    $(this).removeClass('dialogbox_hover');
-                });
+                );
             Current.focussed.focus();  
         }
         return this;
@@ -717,7 +704,7 @@
      */
     function setId() {
     
-        Current.id = ((new Date()).getTime() + '' + Math.floor(Math.random() * 1000000)).substr(0, 18);
+        Current.id = (new Date()).getTime() + '' + Math.floor(Math.random() * 1000000);
         return Current.id;
     }
     
@@ -732,6 +719,7 @@
         
         var outer = $('#dialogbox_outer'),
             id = setId(),
+            fields = outer.find('input:visible, select:visible, textarea:visible, button:visible'),
 
             // ok and cancel functions 
             func = function(a) {
@@ -753,6 +741,21 @@
                 return func('cancel');
             };
         outer.submit(confirm);
+                 
+        fields.unbind('focus')
+            .unbind('blur')
+            .unbind('mouseover')
+            .unbind('mouseout')
+            .removeClass('dialogbox_focus')
+            .focus(function() {
+                Current.focussed = $(this).addClass('dialogbox_focus');
+            }).blur(function() {
+                $(this).removeClass('dialogbox_focus');
+            }).mouseover(function() {
+                $(this).addClass('dialogbox_hover');
+            }).mouseout(function() {
+                $(this).removeClass('dialogbox_hover');
+            });
         
         // don't allow separate cancel function for alert boxes
         Current.onCancel = Current.options.type !== 'alert' ? cancel : confirm; 
@@ -768,17 +771,19 @@
      * restore box message to its original location in the DOM
      */
     function restore() {
-        
-        if (Current.options.restore) {
-            var r = Current.restoreTo;
-            $.each({next:'before', previous:'after', parent:'append'}, function(k, v) {
-            	if (r[k] && r[k].length) {
-            		r[k][v](Current.options.message);
-            		return false;
-            	}
-            });   
+
+        if (Current.restoreTo.length && Current.options.message instanceof jQuery) {
+            Current.options.message.each(function(i) {
+                var $elm = $(this), r = Current.restoreTo[i];
+                $.each({next:'before', previous:'after', parent:'append'}, function(k, v) {
+                    if (r && r[k] && r[k].length) {
+                        r[k][v]($elm);
+                        return false;
+                    }
+                });
+            });
         }
-        Current.restoreTo = {};
+        Current.restoreTo = [];
     }
     
     /**

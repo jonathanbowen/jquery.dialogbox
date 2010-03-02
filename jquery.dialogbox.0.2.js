@@ -351,7 +351,7 @@
                     top = outer.css('top');
                 },
                 drag: function() {
-                    if (top !== false && top !== outer.css('top')) {
+                    if (top !== false && Math.abs(top - outer.css('top')) > 10) {
                         outer.css('position', 'absolute');
                         abs = true;
                     }

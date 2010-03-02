@@ -166,7 +166,7 @@
             inner = $('#dialogbox_inner'),
             msgholder = $('#dialogbox_message'),
             msgdiv = $('#dialogbox_message_inner'),
-            buttons = $('#dialogbox_button, #dialogbox_buttons'),
+            buttons = $('#dialogbox_buttons'),
             promptVal = $.fn.dialogbox.prompt();
         
         if (!outer.length) {
@@ -228,42 +228,32 @@
         $.extend(Current.options, options);
         
         buttons.empty();
-        $('<input/>', {
-            id: 'dialogbox_ok',
-            type: 'submit',
-            value: Current.options.okText
-        }).appendTo(buttons);
+        $('<input id="dialogbox_ok" type="submit" value="' + Current.options.okText + '" />').appendTo(buttons);
         if (Current.options.type !== 'alert') {
-            $('<input/>', {
-                id: 'dialogbox_cancel',
-                type: 'button',
-                value: Current.options.cancelText
-            }).appendTo(buttons);
+            $('<input id="dialogbox_cancel" type="button" value="' + Current.options.cancelText + '" />').appendTo(buttons);
         }
         $('#dialogbox_input').remove();
         if (Current.options.type === 'prompt') {
-            ($('<input/>', {                
-                type: Current.options.promptType === 'password' ? 'password' : 'text',
-                id: 'dialogbox_input',
-                name: 'dialogbox_input',
-                maxlength: 30,
+            ($('<input id="dialogbox_input" name="dialogbox_input" maxlength="30" type="' +
+                (Current.options.promptType === 'password' ? 'password' : 'text') +
+                '" value="' +
                 // using options rather than Current.options here,
                 // because we don't want an inherited option to overwrite any user-entered data
-                value: options.promptText !== undefined ? options.promptText : promptVal
-            })).appendTo(msgdiv);
+                (options.promptText !== undefined ? options.promptText : promptVal) + '" />')).appendTo(msgdiv);
         }
 
         // sort out box dimensions and perform transitions if necessary 
-        outer.css('width', Current.options.width + 'px'); 
+        outer.css('width', Current.options.width + 'px');
         $('#dialogbox_outer input[type=hidden]').hide();
+        
         var newHeight = msgdiv.css('height', 'auto').css('overflow', 'visible').height(),
             oldHeight = Current.msgHeight || newHeight,
             ieAdjust = Current.isIE6 ? $(document).scrollTop() : 0, 
             hDiff = newHeight - oldHeight,
-            wDiff = Current.width ? Current.options.width - parseFloat(Current.width.replace('px', '')) : 0;  
-        Current.width && outer.css('width', Current.width + 'px');
-   //     outer.css('width', Current.width ? Current.width + 'px' : Current.options.width + 'px');
-        
+            wDiff = Current.width ? Current.options.width - parseFloat(Current.width.replace('px', '')) : 0;
+            
+        Current.width && outer.css('width', Current.width);
+     
         if (!Current.outerHeight || options.position !== undefined) {
 
             options.position = options.position === undefined ? Config.position : options.position;
@@ -293,7 +283,6 @@
                             break;
                         case 'right':
                             css[d] = $(document).width() - (Current.options.width);
-                            
                     }
                 }
                 else if (!coord.match(/^[\d\.-]+(px)?$/)) {
@@ -328,7 +317,7 @@
             else {
                 outer.css(css);
                 $.fn.dialogbox.adjustPosition();
-            }
+            }     
         }
         else {
             outer.stop().css({
@@ -353,9 +342,21 @@
             outer.draggable({
                 handle: '#dialogbox_handle',
                 containment: $('body').height() > $(window).height() ? 'body' : 'window',
-                start: function() { Current.dragging = true; },
+                start: function() {
+                    Current.dragging = true;
+                    // chrome/safari only seem to be able to get offset correct when position set to absolute
+                    if ($.browser.safari) {
+                        outer.css('position', 'absolute');
+                    }
+                },
                 stop: function() {
                     Current.dragging = false;
+                    if ($.browser.safari) {
+                        outer.css({
+                            position: 'fixed',
+                            top: (parseFloat(outer.css('top').replace('/px/', '')) - $(document).scrollTop()) + 'px'
+                        });
+                    }
                     $.fn.dialogbox.adjustPosition();
                     storeDimensions();
                 }
@@ -631,7 +632,7 @@
             
             var top = offset.top - $(document).scrollTop(), left = offset.left;
             if (top < 0) {
-                css.top = 0; //'+=' + (Math.abs(top));
+                css.top = 0;
             }
             else {
                 var boxHeight = outer.outerHeight(), winHeight = $(window).height();
@@ -681,7 +682,7 @@
                     $(Current.options.focus) : 
                     $(fields[0])
                 );
-            Current.focussed.focus();  
+            Current.focussed.focus();
         }
         return this;
     };
@@ -725,8 +726,7 @@
             func = function(a) {
 
                 // don't allow user to close box if loadbar is present
-                if (!$('#dialogbox_loadbar').length) {
-                    
+                if (!$('#dialogbox_loadbar').length) {                   
                     typeof Current.options[a] === 'function' && Current.options[a]($.fn.dialogbox, Current.srcEvent);
                     $.fn.dialogbox.close(Current.options.close, false, id);
                 }
@@ -734,7 +734,7 @@
             },
             confirm = function() {
                 $('#dialogbox_ok').addClass('dialogbox_active');
-                return func('confirm');
+                 return func('confirm');
             },
             cancel = function() {
                 $('#dialogbox_cancel').addClass('dialogbox_active');

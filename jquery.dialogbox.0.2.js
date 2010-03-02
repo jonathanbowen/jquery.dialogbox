@@ -338,20 +338,28 @@
         addEvents();
         
         if (Current.options.draggable) {
-                
+
+            // when box is dragged, need to set position: absolute for chrome/safari,
+            // as they seem to be calculating offset as if box is positioned absolutely
+            // which can move the box outside of the viewport
+            var top, abs;
             outer.draggable({
                 handle: '#dialogbox_handle',
                 containment: $('body').height() > $(window).height() ? 'body' : 'window',
                 start: function() {
                     Current.dragging = true;
-                    // chrome/safari only seem to be able to get offset correct when position set to absolute
-                    if ($.browser.safari) {
+                    top = outer.css('top');
+                },
+                drag: function() {
+                    if (top !== false && top !== outer.css('top')) {
                         outer.css('position', 'absolute');
+                        abs = true;
                     }
+                    top = false;
                 },
                 stop: function() {
                     Current.dragging = false;
-                    if ($.browser.safari) {
+                    if (abs) {
                         outer.css({
                             position: 'fixed',
                             top: (parseFloat(outer.css('top').replace('/px/', '')) - $(document).scrollTop()) + 'px'
@@ -632,7 +640,7 @@
             
             var top = offset.top - $(document).scrollTop(), left = offset.left;
             if (top < 0) {
-                css.top = 0;
+                css.top = Current.isIE6 ? $(document).scrollTop() : 0;
             }
             else {
                 var boxHeight = outer.outerHeight(), winHeight = $(window).height();

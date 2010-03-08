@@ -48,7 +48,7 @@
     p {
         margin: .6em 0;
     }
-    #features-list li {
+    #features-list li, #dependencies-list li {
         background: url(star.png) 15px 1px no-repeat;
         padding-left: 40px;
     }
@@ -86,6 +86,17 @@
         width: 900px;
         margin: 20px auto;
         padding: 30px;
+    }
+    input, select, textarea {
+        font: 1em "Trebuchet MS", Arial, Helvetica, sans-serif;
+        color: #398cbf;
+        background: #eff9ff;
+        border: 1px solid;
+        padding: 2px;
+    }
+    input:focus, select:focus, textarea:focus {
+        color: #444;
+        background: #fff;
     }
     table {
       width: 100%;
@@ -141,12 +152,14 @@
     div.example p a, .slide-list h3 a {
         font-weight: normal;
     }
-    div.example p a, p a:active, li a:active, .slide-list h3 a {
+    div.example p a, p a:active, li a:active, .slide-list h3 a, #container input[type=submit] {
         background-color: #4c9ccd;
         color: #fff;
         -moz-border-radius: 3px;
         -webkit-border-radius: 3px;
         text-decoration: none;
+        border: 0;
+        cursor: pointer;
     }
     p a:active, li a:active {
         font-weight: bold;
@@ -192,7 +205,10 @@
     .slide-list h3 a.expanded {
         background: url(expanded.png) left center no-repeat;
     }
-    .example a:hover {
+    #container input[type=submit] {
+        font-size: 1.2em;
+    }
+    .example a:hover, #container input[type=submit]:hover {
         background-color: #398cbf;
         color: #fff;
         opacity: 1;
@@ -238,7 +254,7 @@
         margin: 0;
         padding: 5px 0 ;
     }
-    .example a[id] {
+    .example a[id], #container input[type=submit] {
         font-size: 1.2em;
         -moz-border-radius: 5px;
         -webkit-border-radius: 5px;        
@@ -324,6 +340,69 @@
         text-align: right;
         outline: none;
     }
+    #playpen-form div {
+        margin-bottom: 5px;
+    }
+    #playpen-textarea {
+        width: 100%;
+        height: 10em;
+        margin-left: -3px;
+        font: .8em "Courier New", Courier, monospace;
+    }
+    .blacknpink #dialogbox_top_left {
+        background: url(/jquery.dialogbox/images/dialogbox_blacknpink_left.png) left top no-repeat;
+    }
+    .blacknpink #dialogbox_top_right {
+        background: url(/jquery.dialogbox/images/dialogbox_blacknpink_right.png) right top no-repeat;
+    }
+    .blacknpink #dialogbox_bottom_left {
+        background: url(/jquery.dialogbox/images/dialogbox_blacknpink_left.png) left bottom no-repeat;
+    }
+    .blacknpink #dialogbox_bottom_right {
+        background: url(/jquery.dialogbox/images/dialogbox_blacknpink_right.png) right bottom no-repeat;
+    }
+    .blacknpink #dialogbox_top_left, .blacknpink #dialogbox_bottom_left {
+        width: 26px;
+    }
+    .blacknpink #dialogbox_bottom_right {
+        left: 26px;
+    }
+    .blacknpink #dialogbox_top_left, .blacknpink #dialogbox_top_right {
+        height: 59px;
+    }
+    .blacknpink #dialogbox_top_right {
+        margin-left: 26px;
+    }
+    #dialogbox_outer.blacknpink {
+        color: #fff;
+        font: 1.1em Arial, Helvetica, sans-serif;
+    }
+    .blacknpink #dialogbox_handle, .blacknpink #dialogbox_handle_inner {
+        height: 39px;
+        color: #000;
+        font-size: 1.1em;
+        text-align: center;
+        font-weight: bold;
+    }
+    .blacknpink #dialogbox_handle_inner {
+        padding: 15px;    
+    }
+    .blacknpink #dialogbox_message_inner {
+        background: #000;    
+    }
+    .blacknpink #dialogbox_inner #dialogbox_buttons input {
+        background-image: url(../images/dialogbox_buttons_blacknpink.png);
+        color: #fff;
+    }
+    .blacknpink #dialogbox_inner #dialogbox_buttons input:active, .blacknpink #dialogbox_inner #dialogbox_buttons input.dialogbox_active {
+        color: #000;
+    }
+    .blacknpink #dialogbox_inner #dialogbox_buttons {
+        bottom: 22px;
+    }
+    #dialogbox_mask.blacknpink {
+        background: #b83f91;
+    }
 </style>
 </head>
 <body id="top">
@@ -356,6 +435,7 @@
             <li><a href="#features">Features</a></li>
             <li><a href="#examples">Examples</a></li>            <li><a href="#usage">Usage</a></li>            <li><a href="#options">Options</a></li>
             <li><a href="#functions">Methods</a></li>
+            <li><a href="#playpen">Playpen</a></li>
         </ul>
         </div>
         <a id="hide_link" href="#">Hide</a>
@@ -472,10 +552,11 @@
     <div class="code"><div><pre class="js">    $('#example-5').dialogbox({
         message: 'Click \'Morph\' to see me change!',
         type: 'confirm',
-    	title: 'Morphing box',
-    	transitions: 'slow',
-    	okText: 'Morph',
-    	cancelText: 'Close',
+        title: 'Morphing box',
+        className: 'blacknpink',
+        morphing: 'normal',
+        okText: 'Morph',
+        cancelText: 'Close',
         confirm: function(b) {
             var x = Math.random() * 700,
                 y = Math.random() * 500,
@@ -484,7 +565,7 @@
                 m = s,
                 r = Math.random() * 15,
                 i = 0;
-            while (i < r) {
+            while (i &lt; r) {
                 m += s;
                 i++;
             }
@@ -620,11 +701,7 @@
     
     <h2 id="options">Options:</h2>
     <p>This is the full list of options that can be applied; these can be passed when attaching the handler, opening a new box using <a href="#function-open">open()</a> or changing an existing box with <a href="#function-set">set()</a>. All options are optional. Default options can be set with <a href="#function-config">config()</a></p>
-    
-    <p>
-        <a href="#nojs" id="open-demo">Open a box!</a>
-    </p>
-    
+        
     <ul id="options-list" class="slide-list">
         <li>
             <h3 id="option-message">message</h3>
@@ -859,10 +936,6 @@
                 <strong>50</strong> - 50 pixels from the left, vertically centered,<br />
                 <strong>'center 50'</strong> / <strong>['center', 50]</strong> - 
                     horizontally centred, 50 pixels from the top.</p>
-                    
-                <p>
-                    <a href="#nojs" id="position-demo">Give it a try!</a> (this demo takes strings only)
-                </p>
                 
                 <h4>Type:</h4>
                 <p>String, number or array</p>
@@ -894,9 +967,19 @@
             </div></div>
         </li>
         <li>
-            <h3 id="option-transitions">transitions</h3>
+            <h3 id="option-fading">fading</h3>
             <div><div>
-                <p>Duration of animations - when the box fades onto the page, or expands/contracts to fit new content. This can be a number in milliseconds, or any of the strings 'slow', 'normal', 'fast' - the same as for any jQuery animation.</p>
+                <p>Fade duration when box fades into the page. This can be a number in milliseconds, or any of the strings 'slow', 'normal', 'fast' - the same as for any jQuery animation.</p>
+                <h4>Type:</h4>
+                <p>String or number</p>
+                <h4>Default:</h4>
+                <p>'fast' for proper browsers, or 0 for IE. This is because the latter, even up to version 8, makes a mess of fading transparent pngs, and text in faded elements is very jaggedy, even when fully faded in.</p>
+            </div></div>
+        </li>
+        <li>
+            <h3 id="option-morphing">morphing</h3>
+            <div><div>
+                <p>Duration of animations when box expands or contracts to fit new content, or is moved to a different position. This can be a number in milliseconds, or any of the strings 'slow', 'normal', 'fast' - the same as for any jQuery animation.</p>
                 <h4>Type:</h4>
                 <p>String or number</p>
                 <h4>Default:</h4>
@@ -940,6 +1023,9 @@
     </ul>
     
     <h2 id="functions">Methods:</h2>
+
+    <p>These functions can be called from within any of the callback options (<a href="#option-confirm">confirm</a>,
+        <a href="#option-cancel">cancel</a>, <a href="#option-open">open</a> or <a href="#option-close">close</a>) or from outside using <strong>$.dialogbox.[function_name]([arguments])</strong>. </p>
 
     <ul id="functions-list" class="slide-list">
         <li>
@@ -1088,22 +1174,59 @@
     
     <h2>Dependencies</h2>
     
-    <ul>
+    <ul id="dependencies-list">
         <li><a href="http://docs.jquery.com/Downloading_jQuery#Download_jQuery">jQuery 1.4+</a>.</li>
         <li><a href="http://jqueryui.com/download">jQuery UI</a>, 
         with  <a href="http://jqueryui.com/demos/draggable/">draggable</a> component, unless the
         <a href="#option-draggable">draggable</a> option is globally disabled.</li>
         <li><a href="http://gsgd.co.uk/sandbox/jquery/easing/">jquery.easing</a> if using funny easing methods.</li>
+        <li>If using alpha-transparent pngs, a png-fix for IE6 such as <a href="http://www.dillerdesign.com/experiment/DD_belatedPNG/">DD_belatedPNG</a>. </li>
     </ul>
     
     <!-- mdend -->
     
     <p id="nojs">No javascript?</p>
+    
+    <h2 id="playpen">The Playpen</h2>
+    
+    <p>This is just an area for experimentation and testing. Modify the object literal to create a box on this page. Can't get rid of the box, type <strong>$.fn.dialogbox.close()</strong> into firebug.</p>
+    
+    <form action="" id="playpen-form" onsubmit="return false">    	<div><textarea name="" id="playpen-textarea" cols="30" rows="10">{
+    cancel: $.noop,
+    cancelText: 'Cancel',
+    className: '',
+    close: $.noop,
+    confirm: $.noop,
+    draggable: true,
+    easing: 'swing',
+    fading: $.browser.msie ? 0 : 'fast',
+    focus: false,
+    loadbar: false,
+    maskOpacity: 0.3,
+    message: '',
+    morphing: 'fast',
+    okText: 'Ok',
+    open: $.noop,
+    position: 'center',
+    preventDefault: true,
+    stopPropagation: true,
+    promptText: '',
+    promptType: 'text',
+    restore: true,
+    title: '',
+    type: 'alert',
+    shakes: true,
+    width: 270
+}</textarea></div>
+        <div><input type="submit" value="Run code" /></div>    </form>
 
 </div> 
 <script type="text/javascript" src="jquery-1.4.1.min.js"></script>
 <script type="text/javascript" src="jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="jquery.easing.1.3.js"></script>
 <script type="text/javascript" src="../jquery.dialogbox.0.2.js"></script>
+<script type="text/javascript" src="jquery.textarea.js"></script>
+<script type="text/javascript" src="autoresize.jquery.min.js"></script>
 <script type="text/javascript"> 
 //<![CDATA[
 
@@ -1189,7 +1312,8 @@ $(function(){
         message: 'Click \'Morph\' to see me change!',
         type: 'confirm',
     	title: 'Morphing box',
-    	transitions: 'slow',
+        className: 'blacknpink',
+    	morphing: 'normal',
     	okText: 'Morph',
     	cancelText: 'Close',
         confirm: function(b) {
@@ -1212,57 +1336,6 @@ $(function(){
         }
     });
     
-    // positioning demo
-    $('a#position-demo').dialogbox({
-        message: 'Where would you like me?',
-        type: 'prompt',
-        promptText: 'top left',
-        confirm: function(box) {
-            box.set('position', box.prompt());
-        }
-    });
-
-    // new box demo
-    $('body').append((function() {
-        var textareas = '',
-            content = '<form style="display:none" id="open-demo-form"><div>' +
-            '<select name="options" id="optselect">';
-        $.each($.fn.dialogbox.config(), function(k, v) {
-            content += '<option value="' + k + '">' + k + '</option>';
-            var style = textareas ? ' style="display:none"' : '',
-                value = typeof v === 'string' ? "'" + v + "'" : v.toString();
-            textareas += '<textarea' + style + ' name="opt_' + k + 
-                '" rows="2" cols="30">' + value + '</textarea>';
-        });
-        content += '</select>' + textareas + '</div></form>';
-        return content;
-    })());
-
-    $('#optselect').change(function() {
-        $('#dialogbox_message textarea').each(function() {
-            $(this).css('display', $(this).attr('name') === 'opt_' + $('#optselect').val() ? 
-                'block' : 'none');
-        });
-    });
-
-    $('#open-demo').dialogbox({
-        message: $('#open-demo-form div'),
-        type: 'confirm',
-        title: 'Set box options:',
-        confirm: function(box) {
-            var params = {}, error = false, options = box.config();
-            $.each(options, function(k, v) {
-                try {
-                    eval('params[k]=' + box.form('opt_' + k));
-                } catch(e) {
-                    error = '<strong>Error:</strong> ' + e;
-                    return false;
-                }
-            });
-            box.open(error ? error : params);
-        }
-    });
-
     // default ajax failure function
     $(document).dialogbox('Connection error! Please try again later.', 'ajaxError');
     
@@ -1505,11 +1578,20 @@ $(function(){
         return false;
     });
     
-    function html_entity_decode(str) {
-        
-        return $('<textarea/>').html(str).val();
-    }
-
+    // playpen form
+    $('#playpen-form').dialogbox(function() {
+        var options;
+        try {
+            eval('options = ' + $('#playpen-textarea').val());
+        } catch(e) {
+            options = {
+                title: 'Script error!',
+                message: e.toString()
+            };
+        }
+        return options;
+    }, 'submit');
+    $('#playpen-textarea').tabby({tabString: '    '}).autoResize().keydown();
 });
 
 function alert(message) {
@@ -1518,11 +1600,11 @@ function alert(message) {
 
 //]]>
 </script>
-<!--[if lte IE 3]>
+<!--[if lte IE 6]>
 <script src="DD_belatedPNG_0.0.8a-min.js"></script>
 <script>
   /* EXAMPLE */
-  DD_belatedPNG.fix('#dialogbox_outer, #dialogbox_inner'); 
+  DD_belatedPNG.fix('#dialogbox_top_left, #dialogbox_top_right, #dialogbox_bottom_left, #dialogbox_bottom_right'); 
   
   /* string argument can be any CSS selector */
   /* .png_bg example is unnecessary */

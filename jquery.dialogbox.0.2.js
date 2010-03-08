@@ -15,10 +15,12 @@
             confirm: $.noop,
             draggable: true,
             easing: 'swing',
+            fading: $.browser.msie ? 0 : 'fast',
             focus: false,
             loadbar: false,
             maskOpacity: 0.3,
             message: '',
+            morphing: 'fast',
             okText: 'Ok',
             open: $.noop,
             position: 'center',
@@ -28,7 +30,6 @@
             promptType: 'text',
             restore: true,
             title: '',
-            transitions: 'fast',
             type: 'alert',
             shakes: true,
             width: 270
@@ -93,31 +94,45 @@
         // very hackish fix that prevents box from being moved to default position when 
         // replacing an existing box, unless position explicitly set
         options.position = pos;
-        var callbackRan = false;
-        $('<div/>', {
-            id: 'dialogbox_mask',
-            'class': options.className,
-            css: { height: $(document).height() + 'px', opacity: options.maskOpacity }
-        }).add(
-        $('<form/>', {
-            action: '',
-            onsubmit: 'return false',
-            id: 'dialogbox_outer',
-            'class': 'dialogbox_' + options.type + ' ' + options.className + ($.browser.msie ? ' dialogbox_ie' : ''),
-            html: '<div id="dialogbox_top_left"></div><div id="dialogbox_top_right"></div><div id="dialogbox_handle"><div id="dialogbox_handle_inner"></div></div><div id="dialogbox_inner"><div id="dialogbox_message"><div id="dialogbox_bottom_left"></div><div id="dialogbox_bottom_right"></div><div id="dialogbox_message_inner"></div><div id="dialogbox_buttons"></div></div></div>'
-        })
-        ).appendTo($('body')).hide().fadeIn(Current.outerHeight ? 0 : options.transitions, function() {
+        var callbackRan = false,
+            callback = function() {
             
-            // don't let the callback run more than once
-            if (!callbackRan) {
-                // doesn't fade in if box is taller than the viewport (don't know why), so need to set explicitly
-                $('#dialogbox_outer').css('opacity', 1);
-                if (Current.isIE6) {
-                    $('body').children('*[id!=dialogbox_outer]').find('select').css({display: 'none'});
+                // don't let the callback run more than once
+                if (!callbackRan) {
+                    // doesn't fade in if box is taller than the viewport (don't know why), so need to set explicitly
+                    // only run this if opacity is not 1, as ie messes up transparent pngs when opacity is set
+                    var outer = $('#dialogbox_outer');
+                    if (fadeDuration && outer.css('opacity') !== '1') {
+                        $('#dialogbox_outer').css('opacity', 1);
+                    }
+                    if (Current.isIE6) {
+                        $('body').children('*[id!=dialogbox_outer]').find('select').css({display: 'none'});
+                    }
+                    callbackRan = true;
                 }
-                callbackRan = true;
-            }
-        });
+            },
+            fadeDuration = Current.outerHeight ? 0 : options.fading,
+            elms = $('<div/>', {
+                    id: 'dialogbox_mask',
+                    'class': options.className,
+                    css: { height: $(document).height() + 'px', opacity: options.maskOpacity }
+                }).add(
+                $('<form/>', {
+                    action: '',
+                    onsubmit: 'return false',
+                    id: 'dialogbox_outer',
+                    'class': 'dialogbox_' + options.type + ' ' + options.className + ($.browser.msie ? ' dialogbox_ie' : ''),
+                    html: '<div id="dialogbox_top_left"></div><div id="dialogbox_top_right"></div><div id="dialogbox_handle"><div id="dialogbox_handle_inner"></div></div><div id="dialogbox_inner"><div id="dialogbox_message"><div id="dialogbox_bottom_left"></div><div id="dialogbox_bottom_right"></div><div id="dialogbox_message_inner"></div><div id="dialogbox_buttons"></div></div></div>'
+                })
+                ).appendTo($('body')).hide();
+        // for 0 fade duration, simply set display:block rather than fade with 0 duration,
+        // as ie will mess up transparent pngs and text smoothing when opacity is set
+        if (fadeDuration) {
+            elms.fadeIn(fadeDuration, callback);
+        } else {
+            elms.css('display', 'block');
+            callback();
+        }
         
         // make sure mask fills entire page on resize
         var resize = function() {
@@ -312,7 +327,7 @@
                     top: Current.top,
                     left: Current.left,
                     width: Current.width
-                }).animate(css, Current.options.transitions, Current.options.easing, $.fn.dialogbox.adjustPosition);
+                }).animate(css, Current.options.morphing, Current.options.easing, $.fn.dialogbox.adjustPosition);
             } 
             else {
                 outer.css(css);
@@ -328,12 +343,12 @@
                 top: (hDiff > 0 ? '-' : '+') + '=' + Math.abs(hDiff / 2),
                 width: Current.options.width + 'px',
                 left: (parseFloat(Current.left.replace('px', '')) - (wDiff / 2)) + 'px'
-            }, Current.options.transitions, Current.options.easing, $.fn.dialogbox.adjustPosition);
+            }, Current.options.morphing, Current.options.easing, $.fn.dialogbox.adjustPosition);
         }
         
         msgdiv.stop().css('overflow', 'hidden').css('height', oldHeight + 'px').animate({
             height: (hDiff > 0 ? '+' : '-') + '=' + Math.abs(hDiff)
-        }, Current.options.transitions, Current.options.easing, $.fn.dialogbox.focus);
+        }, Current.options.morphing, Current.options.easing, $.fn.dialogbox.focus);
 
         addEvents();
         
@@ -342,24 +357,18 @@
             // when box is dragged, need to set position: absolute for chrome/safari,
             // as they seem to be calculating offset as if box is positioned absolutely
             // which can move the box outside of the viewport
-            var top, abs;
             outer.draggable({
                 handle: '#dialogbox_handle',
                 containment: $('body').height() > $(window).height() ? 'body' : 'window',
                 start: function() {
                     Current.dragging = true;
-                    top = outer.css('top');
-                },
-                drag: function() {
-                    if (top !== false && Math.abs(top - outer.css('top')) > 10) {
+                    if ($.browser.safari) {
                         outer.css('position', 'absolute');
-                        abs = true;
                     }
-                    top = false;
                 },
                 stop: function() {
                     Current.dragging = false;
-                    if (abs) {
+                    if ($.browser.safari) {
                         outer.css({
                             position: 'fixed',
                             top: (parseFloat(outer.css('top').replace('/px/', '')) - $(document).scrollTop()) + 'px'
@@ -396,7 +405,7 @@
             // set id to prevent the function from running again after those functions have completed
             setId();
             var elms = $('#dialogbox_outer, #dialogbox_mask');
-            elms.stop().fadeOut(nofade ? 0 : Current.options.transitions, function() {
+            elms.stop().fadeOut(nofade ? 0 : Current.options.fading, function() {
             
                 // don't let the callback run more than once
                 if (!$('#dialogbox_outer').length) {
@@ -658,7 +667,7 @@
                 }
             }
             if (!$.isEmptyObject(css)) {
-                outer.stop().animate(css, Current.options.transitions, Current.options.easing, function() {
+                outer.stop().animate(css, Current.options.morphing, Current.options.easing, function() {
                     storeDimensions();
                     $.fn.dialogbox.focus();
                 });

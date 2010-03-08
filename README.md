@@ -119,6 +119,36 @@ This is a very new plugin though, and I don't doubt still has plenty of big, jui
         }
     });
 
+### Morphing demonstration
+
+    $('#example-5').dialogbox({
+        message: 'Click \'Morph\' to see me change!',
+        type: 'confirm',
+        title: 'Morphing box',
+        className: 'blacknpink',
+        morphing: 'normal',
+        okText: 'Morph',
+        cancelText: 'Close',
+        confirm: function(b) {
+            var x = Math.random() * 700,
+                y = Math.random() * 500,
+                w = 250 + (Math.random() * 200),
+                s = 'some words... ',
+                m = s,
+                r = Math.random() * 15,
+                i = 0;
+            while (i < r) {
+                m += s;
+                i++;
+            }
+            b.set({
+                message: m,
+                position: [x, y],
+                width: w
+            });
+        }
+    });
+
 ## Usage:
 
 Include the stylesheet in the <head> section of the page:
@@ -271,7 +301,7 @@ one button and will only execute the **confirm** option,
 confirm boxes permit the user 
 to cancel, and prompt boxes additionally contain a single text or password input (see also 
 **promptText** and **promptType** 
-options for prompt boxes. 
+options for prompt boxes). 
 
 #### Type:
 
@@ -534,9 +564,21 @@ Number
 
 0.3
 
-### transitions
+### fading
 
-Duration of animations - when the box fades onto the page, or expands/contracts to fit new content. This can be a number in milliseconds, or any of the strings 'slow', 'normal', 'fast' - the same as for any jQuery animation.
+Fade duration when box fades into the page. This can be a number in milliseconds, or any of the strings 'slow', 'normal', 'fast' - the same as for any jQuery animation.
+
+#### Type:
+
+String or number
+
+#### Default:
+
+'fast' for proper browsers, or 0 for IE. This is because the latter, even up to version 8, makes a mess of fading transparent pngs, and text in faded elements is very jaggedy, even when fully faded in.
+
+### morphing
+
+Duration of animations when box expands or contracts to fit new content, or is moved to a different position. This can be a number in milliseconds, or any of the strings 'slow', 'normal', 'fast' - the same as for any jQuery animation.
 
 #### Type:
 
@@ -548,7 +590,7 @@ String or number
 
 ### easing
 
-The type of easing to be used in animations when the box's height changes. 
+The type of easing to be used in animations when the box's dimensions change. 
 **jquery.easing** is required for anything other
 than 'swing' or 'linear'. 
 
@@ -586,6 +628,9 @@ Boolean
 true
 
 ## Methods:
+
+These functions can be called from within any of the callback options (**confirm**,
+**cancel**, **open** or **close**) or from outside using **$.dialogbox.[function_name]([arguments])**. 
 
 ### open([options])
 
@@ -672,7 +717,7 @@ The value to set the prompt input, or empty to retrieve the current value.
 
 The current value of prompt input (when called with one argument) or $.fn.dialogbox.
 
-### form([parameters]) / form(field, [value])
+### form([fields]) / form(field, [value])
 
 Get or set values of form field(s) within the box.
 
@@ -705,7 +750,7 @@ Checks whether there's currently a box in the page.
 
 Boolean true if there is a box, false otherwise.
 
-### config([parameters]) / config(option, [value])
+### config([options]) / config(option, [value])
 
 Get or set default options for new boxes.
 
@@ -727,3 +772,4 @@ options. If setting, returns $.fn.dialogbox.
 with  **draggable** component, unless the
 **draggable** option is globally disabled.
 * **jquery.easing** if using funny easing methods.
+* If using alpha-transparent pngs, a png-fix for IE6 such as **DD_belatedPNG**.

@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Dialogbox - jQuery dialog boxes</title>
-    <link rel="stylesheet" type="text/css" href="../jquery.dialogbox.0.2.css" />
+    <link rel="stylesheet" type="text/css" href="../jquery.dialogbox.css" />
 <link type="text/css" rel="stylesheet" href="dp.SyntaxHighlighter/Styles/SyntaxHighlighter.css" />
 
 <script type="text/javascript" src="dp.SyntaxHighlighter/Scripts/shCore.js"></script>
@@ -563,11 +563,9 @@
                 w = 250 + (Math.random() * 200),
                 s = 'some words... ',
                 m = s,
-                r = Math.random() * 15,
-                i = 0;
-            while (i &lt; r) {
+                r = Math.random() * 15;
+            for (var i = 0; i &lt; r; i++) {
                 m += s;
-                i++;
             }
             b.set({
                 message: m,
@@ -806,6 +804,18 @@
                 <p>Function</p>
                 <h4>Default:</h4>
                 <p><a href="http://api.jquery.com/jQuery.noop/">$.noop</a></p>
+            </div></div>
+        </li>
+        <li>
+            <h3 id="option-closeOnBlur">closeOnBlur</h3>
+            <div><div>
+                <p>Whether a box can be closed by clicking or tabbing away from it. 
+                The <a href="#option-cancel">cancel</a> function (if any) will still be triggered 
+                before the box is closed.</p>
+                <h4>Type:</h4>
+                <p>Boolean</p>
+                <h4>Default:</h4>
+                <p>false</p>
             </div></div>
         </li>
         <li>
@@ -1196,6 +1206,7 @@
     cancelText: 'Cancel',
     className: '',
     close: $.noop,
+    closeOnBlur: false,
     confirm: $.noop,
     draggable: true,
     easing: 'swing',
@@ -1224,7 +1235,7 @@
 <script type="text/javascript" src="jquery-1.4.1.min.js"></script>
 <script type="text/javascript" src="jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="jquery.easing.1.3.js"></script>
-<script type="text/javascript" src="../jquery.dialogbox.0.2.js"></script>
+<script type="text/javascript" src="../jquery.dialogbox.js"></script>
 <script type="text/javascript" src="jquery.textarea.js"></script>
 <script type="text/javascript" src="autoresize.jquery.min.js"></script>
 <script type="text/javascript"> 
@@ -1322,11 +1333,9 @@ $(function(){
                 w = 250 + (Math.random() * 200),
                 s = 'some words... ',
                 m = s,
-                r = Math.random() * 15,
-                i = 0;
-            while (i < r) {
+                r = Math.random() * 15;
+            for (var i = 0; i < r; i++) {
                 m += s;
-                i++;
             }
             b.set({
                 message: m,

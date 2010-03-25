@@ -135,11 +135,9 @@ This is a very new plugin though, and I don't doubt still has plenty of big, jui
                 w = 250 + (Math.random() * 200),
                 s = 'some words... ',
                 m = s,
-                r = Math.random() * 15,
-                i = 0;
-            while (i < r) {
+                r = Math.random() * 15;
+            for (var i = 0; i < r; i++) {
                 m += s;
-                i++;
             }
             b.set({
                 message: m,
@@ -376,6 +374,20 @@ Function
 #### Default:
 
 **$.noop**
+
+### closeOnBlur
+
+Whether a box can be closed by clicking or tabbing away from it. 
+The **cancel** function (if any) will still be triggered 
+before the box is closed.
+
+#### Type:
+
+Boolean
+
+#### Default:
+
+false
 
 ### okText
 

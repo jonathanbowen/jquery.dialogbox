@@ -12,6 +12,7 @@
             cancelText: 'Cancel',
             className: '',
             close: $.noop,
+            closeOnBlur: false,
             confirm: $.noop,
             draggable: true,
             easing: 'swing',
@@ -757,6 +758,11 @@
                 $('#dialogbox_cancel').addClass('dialogbox_active');
                 return func('cancel');
             };
+        
+        // don't allow separate cancel function for alert boxes
+        Current.onCancel = Current.options.type !== 'alert' ? cancel : confirm;
+        var unfocus = Current.options.closeOnBlur ? Current.onCancel : $.fn.dialogbox.shake;
+        
         outer.submit(confirm);
                  
         fields.unbind('focus')
@@ -773,15 +779,12 @@
             }).mouseout(function() {
                 $(this).removeClass('dialogbox_hover');
             });
-        
-        // don't allow separate cancel function for alert boxes
-        Current.onCancel = Current.options.type !== 'alert' ? cancel : confirm; 
 
         $('#dialogbox_cancel').click(cancel); 
         outer.keydown(keydown);
         $(document).keydown($.fn.dialogbox.focus);
-        $('#dialogbox_mask').mousedown($.fn.dialogbox.shake);
-        $('body').children('*[id!=dialogbox_outer]').focusin($.fn.dialogbox.shake);
+        $('#dialogbox_mask').mousedown(unfocus);
+        $('body').children('*[id!=dialogbox_outer]').focusin(unfocus);
     }
     
     /**

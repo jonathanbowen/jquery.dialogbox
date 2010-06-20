@@ -51,7 +51,6 @@
             restoreTo: {},
             srcEvent: false,
             top: 0,
-            triggered: false,
             width: 0
         };
     
@@ -61,13 +60,13 @@
      * @param  {Object} options config options or function to generate same
      * @param  {Object} evt     event to attach box to
      * @return {Object} jQuery
-     */    
+     */
     $.fn.dialogbox = function(options, evt) {
     
-        $(this)[evt || 'click'](function(e) {
+        $(this).bind((evt || 'click').replace(/([a-z]+)\b/g, '$1.dialogbox'), function(e) {
             Current.srcEvent = e;
-            Current.triggered = true;
             $.fn.dialogbox.open(typeof options === 'function' ? options(e) : options);
+            handleEvent(e);
         });
         return this;
     };
@@ -79,7 +78,7 @@
      * @return {Object} $.fn.dialogbox
      */
     $.fn.dialogbox.open = function(options) {
-    
+
         // close any existing boxes
         storeDimensions();
         if ($('#dialogbox_outer').length) {
@@ -156,15 +155,6 @@
             $('#dialogbox_outer').click();
             $(window).scroll($.fn.dialogbox.adjustPosition).resize($.fn.dialogbox.adjustPosition);
         }
-        
-        // only prevent default / stop propagation when box first triggered
-        // - not when called from callback function
-        if (Current.triggered && Current.srcEvent) {
-            
-            options.preventDefault && Current.srcEvent.preventDefault();
-            options.stopPropagation && Current.srcEvent.stopPropagation();
-        }
-        Current.triggered = false;
         
         return this; 
     };
@@ -324,7 +314,7 @@
             css.left = (parseFloat(css.left) > 0 ? css.left : 0) + 'px';
             css.width = Current.options.width + 'px';
             if (Current.outerHeight) {
-                outer.css({
+                outer.stop().css({
                     top: Current.top,
                     left: Current.left,
                     width: Current.width
@@ -358,23 +348,13 @@
             // when box is dragged, need to set position: absolute for chrome/safari,
             // as they seem to be calculating offset as if box is positioned absolutely
             // which can move the box outside of the viewport
-            outer.draggable({
+            outer.simpleDrag({
                 handle: '#dialogbox_handle',
-                containment: $('body').height() > $(window).height() ? 'body' : 'window',
                 start: function() {
                     Current.dragging = true;
-                    if ($.browser.safari) {
-                        outer.css('position', 'absolute');
-                    }
                 },
                 stop: function() {
                     Current.dragging = false;
-                    if ($.browser.safari) {
-                        outer.css({
-                            position: 'fixed',
-                            top: (parseFloat(outer.css('top').replace('/px/', '')) - $(document).scrollTop()) + 'px'
-                        });
-                    }
                     $.fn.dialogbox.adjustPosition();
                     storeDimensions();
                 }
@@ -443,7 +423,7 @@
             setId();
             var buttonholder = $('#dialogbox_buttons');
             $('#dialogbox_ok').focus();
-            $('#dialogbox_buttons input').css('visibility', 'hidden');
+            $('#dialogbox_buttons').find('input').css('visibility', 'hidden');
             $('<div/>', {
                 id: 'dialogbox_loadbar',
                 css: { height: buttonholder.outerHeight() + 'px', width: buttonholder.outerWidth() + 'px' }
@@ -462,7 +442,7 @@
      */
     $.fn.dialogbox.removeLoadbar = function() {
     
-        $('#dialogbox_buttons input').css('visibility', 'visible');
+        $('#dialogbox_buttons').find('input').css('visibility', 'visible');
         $('#dialogbox_loadbar').remove();
         addEvents();
         return this;
@@ -471,8 +451,8 @@
     /**
      * Getter and setter for prompt input value
      * 
-     * @param {String}  val  value for input
-     * @return {String} new input value
+     * @param {String}         val  value for input
+     * @return {Object|String} $.fn.dialogbox if setting, input value if getting
      */
     $.fn.dialogbox.prompt = function(val) {
     
@@ -576,7 +556,7 @@
         
         var form = $('#dialogbox_outer');
         if (form.length) {
-            form.get(0).reset();
+            form[0].reset();
         }
         return this;
     };
@@ -673,6 +653,9 @@
                     $.fn.dialogbox.focus();
                 });
             }
+            else {
+                $.fn.dialogbox.focus();
+            }
         }
         
         return this;
@@ -744,7 +727,7 @@
             func = function(a) {
 
                 // don't allow user to close box if loadbar is present
-                if (!$('#dialogbox_loadbar').length) {                   
+                if (!$('#dialogbox_loadbar').length) {
                     typeof Current.options[a] === 'function' && Current.options[a]($.fn.dialogbox, Current.srcEvent);
                     $.fn.dialogbox.close(Current.options.close, false, id);
                 }
@@ -858,6 +841,15 @@
         Current.width = outer.css('width');
         Current.top = outer.css('top');
         Current.left = outer.css('left');
+    }
+     
+    /**
+     * Prevent default action and stop propagation of initial box-triggering event
+     */
+    function handleEvent(e) {
+    
+        Current.options.preventDefault && e.preventDefault();
+        Current.options.stopPropagation && e.stopPropagation();
     }
 
 })(jQuery);

@@ -6,6 +6,8 @@ The boxes are designed to emulate the standard javasript dialogs, but with many 
 behaviour and handling of user data, a slew of methods for reacting to user input, 
 and without the clunkiness and annoyance of regular js dialogs.
 
+The script currently weighs in at 36.2 KB uncompressed, 14.7 KB minified, 4.4 KB gzipped.
+
 This is a very new plugin though, and I don't doubt still has plenty of big, juicy bugs waiting to be discovered...
 
 ## Features:
@@ -13,10 +15,9 @@ This is a very new plugin though, and I don't doubt still has plenty of big, jui
 * Can be created as 'alert', 'confirm' or 'prompt' boxes
 * Boxes can be customised to contain any content including form elements
 * Can be triggered on all kinds of events, and customised according to the event target
-* Easily set or retrieve data from any form fields within the box
-* Customiseable 'confirm' and 'cancel' functions to respond to user input
-* Many other customiseable settings 
-* Built-in functions for sending ajax requests
+* Extensive API for reacting to user input
+* Built-in loading indicator for ajax requests
+* Many customiseable settings for controlling box appearance and behaviour
 * Fully keyboard accessible - return/escape keys can be used to confirm/cancel, and arrow keys to move between Ok and Cancel buttons
 * Boxes can be dragged around the window, constrained within the visible viewport
 * Appearance of boxes can be changed using CSS
@@ -96,6 +97,11 @@ This is a very new plugin though, and I don't doubt still has plenty of big, jui
             
             // and send ajax request with the form data from the box
             $.post($('#loginform').attr('action'), box.serialize(), function(response) {
+            
+                if (!response) {
+                    $(document).trigger('ajaxError');
+                    return;
+                }
                 
                 // if login successful, open alert box with success message
                 if (response.success) {
@@ -253,6 +259,9 @@ each delete button, and if confirmed, submits the button's form through an ajax 
         });
     }
 This will degrade gracefully if javascript is disabled.
+The dialogbox event can be detached using jQuery's **unbind()** on the target element:
+
+    $('#mylink').unbind('click.dialogbox'); // or 'submit.dialogbox' or whatever event was originally used
 
 ## Options:
 
@@ -318,8 +327,9 @@ box, or alters the existing box using **set()** or
 This function optionally takes up to two arguments: the first is simply an alias of 
 **$.fn.dialogbox** to save typing, the second is the event that was triggered.
 These arguments are taken by all function options (**confirm**, 
-**cancel**, **open** and 
-**close**).
+**cancel**, **open**, 
+**close**, **dragStart** and 
+**dragStop**).
 
 #### Type:
 
@@ -334,7 +344,7 @@ Function
 Function to be executed if cancel button is clicked or user presses Escape. As with the 
 **confirm** option, the box will be closed after this function has completed, 
 unless it's been altered.
-This function takes the same arguments as **confirm**. 
+This function takes the same arguments as **confirm**.
 
 #### Type:
 
@@ -628,8 +638,7 @@ true
 
 ### draggable
 
-Whether the box can be dragged around the page. jQuery UI is not required if this is set to 
-**false**.
+Whether the box can be dragged around the page.
 
 #### Type:
 
@@ -638,6 +647,32 @@ Boolean
 #### Default:
 
 true
+
+### dragStart
+
+Callback function triggered when dragging starts.
+This function takes the same arguments as **confirm**.
+
+#### Type:
+
+Function
+
+#### Default:
+
+**$.noop**
+
+### dragStop
+
+Callback function triggered when dragging stops.
+This function takes the same arguments as **confirm**.
+
+#### Type:
+
+Function
+
+#### Default:
+
+**$.noop**
 
 ## Methods:
 
@@ -780,8 +815,5 @@ options. If setting, returns $.fn.dialogbox.
 ## Dependencies
 
 * **jQuery 1.4+**.
-* **jQuery UI**, 
-with  **draggable** component, unless the
-**draggable** option is globally disabled.
 * **jquery.easing** if using funny easing methods.
 * If using alpha-transparent pngs, a png-fix for IE6 such as **DD_belatedPNG**.

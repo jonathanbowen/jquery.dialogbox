@@ -423,6 +423,8 @@
         and without the clunkiness and annoyance of regular js dialogs.
     </p>
     
+    <p>The script currently weighs in at 36.2 KB uncompressed, 14.7 KB minified, 4.4 KB gzipped.</p>
+    
     <p>
         This is a very new plugin though, and I don't doubt still has plenty of big, juicy bugs waiting to be discovered...
     </p>
@@ -444,9 +446,9 @@
     <h2 id="features">Features:</h2>
     
     <ul id="features-list">    	<li>Can be created as 'alert', 'confirm' or 'prompt' boxes</li>    	<li>Boxes can be customised to contain any content including form elements</li>
-        <li>Can be triggered on all kinds of events, and customised according to the event target</li>    	<li>Easily set or retrieve data from any form fields within the box</li>    	<li>Customiseable 'confirm' and 'cancel' functions to respond to user input</li>
-        <li>Many other customiseable settings </li>
-        <li>Built-in functions for sending ajax requests</li>    	<li>Fully keyboard accessible - return/escape keys can be used to confirm/cancel, and arrow keys to move between Ok and Cancel buttons</li>
+        <li>Can be triggered on all kinds of events, and customised according to the event target</li>    	<li>Extensive API for reacting to user input</li>
+        <li>Built-in loading indicator for ajax requests</li>
+        <li>Many customiseable settings for controlling box appearance and behaviour</li>    	<li>Fully keyboard accessible - return/escape keys can be used to confirm/cancel, and arrow keys to move between Ok and Cancel buttons</li>
         <li>Boxes can be dragged around the window, constrained within the visible viewport</li>
         <li>Appearance of boxes can be changed using CSS</li>
         <li>Compatible with Firefox, Opera, Chrome and Internet Explorer 6+</li>    </ul>
@@ -766,8 +768,9 @@
                 <strong>$.fn.dialogbox</strong> to save typing, the second is the event that was triggered.</p>
                 
                 <p>These arguments are taken by all function options (<a href="#option-confirm">confirm</a>, 
-                <a href="#option-cancel">cancel</a>, <a href="#option-open">open</a> and 
-                <a href="#option-close">close</a>).</p>               
+                <a href="#option-cancel">cancel</a>, <a href="#option-open">open</a>, 
+                <a href="#option-close">close</a>, <a href="#option-dragstart">dragStart</a> and 
+                <a href="#option-dragstop">dragStop</a>).</p>               
                 <h4>Type:</h4>
                 <p>Function</p>
                 <h4>Default:</h4>
@@ -780,7 +783,7 @@
                 <p>Function to be executed if cancel button is clicked or user presses Escape. As with the 
                 <a href="#option-confirm">confirm</a> option, the box will be closed after this function has completed, 
                 unless it's been altered.</p>
-                <p>This function takes the same arguments as <a href="#option-confirm">confirm</a>. </p>
+                <p>This function takes the same arguments as <a href="#option-confirm">confirm</a>.</p>
                 <h4>Type:</h4>
                 <p>Function</p>
                 <h4>Default:</h4>
@@ -1029,12 +1032,33 @@
         <li>
             <h3 id="option-draggable">draggable</h3>
             <div><div>
-                <p>Whether the box can be dragged around the page. jQuery UI is not required if this is set to 
-                <strong>false</strong>.</p>
+                <p>Whether the box can be dragged around the page.</p>
                 <h4>Type:</h4>
                 <p>Boolean</p>
                 <h4>Default:</h4>
                 <p>true</p>
+            </div></div>
+        </li>
+        <li>
+            <h3 id="option-dragstart">dragStart</h3>
+            <div><div>
+                <p>Callback function triggered when dragging starts.</p>
+                <p>This function takes the same arguments as <a href="#option-confirm">confirm</a>.</p>
+                <h4>Type:</h4>
+                <p>Function</p>
+                <h4>Default:</h4>
+                <p><a href="http://api.jquery.com/jQuery.noop/">$.noop</a></p>
+            </div></div>
+        </li>
+        <li>
+            <h3 id="option-dragstop">dragStop</h3>
+            <div><div>
+                <p>Callback function triggered when dragging stops.</p>
+                <p>This function takes the same arguments as <a href="#option-confirm">confirm</a>.</p>
+                <h4>Type:</h4>
+                <p>Function</p>
+                <h4>Default:</h4>
+                <p><a href="http://api.jquery.com/jQuery.noop/">$.noop</a></p>
             </div></div>
         </li>
         
@@ -1194,8 +1218,6 @@
     
     <ul id="dependencies-list">
         <li><a href="http://docs.jquery.com/Downloading_jQuery#Download_jQuery">jQuery 1.4+</a>.</li>
-        <li><a href="../jquery.simpledrag.js">simpleDrag</a> plugin for dragging boxes, unless the
-        <a href="#option-draggable">draggable</a> option is globally disabled.</li>
         <li><a href="http://gsgd.co.uk/sandbox/jquery/easing/">jquery.easing</a> if using funny easing methods.</li>
         <li>If using alpha-transparent pngs, a png-fix for IE6 such as <a href="http://www.dillerdesign.com/experiment/DD_belatedPNG/">DD_belatedPNG</a>. </li>
     </ul>
@@ -1208,34 +1230,7 @@
     
     <p>This is just an area for experimentation and testing. Modify the object literal to create a box on this page. Can't get rid of the box, type <strong>$.fn.dialogbox.close()</strong> into firebug.</p>
     
-    <form action="" id="playpen-form" onsubmit="return false">    	<div><textarea name="" id="playpen-textarea" cols="30" rows="10">{
-    cancel: $.noop,
-    cancelText: 'Cancel',
-    className: '',
-    close: $.noop,
-    closeOnBlur: false,
-    confirm: $.noop,
-    draggable: true,
-    easing: 'swing',
-    fading: $.browser.msie ? 0 : 'fast',
-    focus: false,
-    loadbar: false,
-    maskOpacity: 0.3,
-    message: '',
-    morphing: 'fast',
-    okText: 'Ok',
-    open: $.noop,
-    position: 'center',
-    preventDefault: true,
-    stopPropagation: true,
-    promptText: '',
-    promptType: 'text',
-    restore: true,
-    title: '',
-    type: 'alert',
-    shakes: true,
-    width: 270
-}</textarea></div>
+    <form action="" id="playpen-form" onsubmit="return false">    	<div><textarea name="" id="playpen-textarea" cols="30" rows="10"></textarea></div>
         <div><input type="submit" value="Run code" /></div>    </form>
 
 </div> 
@@ -1244,7 +1239,6 @@
 <script type="text/javascript" src="../jquery.dialogbox.js"></script>
 <script type="text/javascript" src="jquery.textarea.js"></script>
 <script type="text/javascript" src="autoresize.jquery.min.js"></script>
-<script type="text/javascript" src="../jquery.simpledrag.js"></script>
 <script type="text/javascript"> 
 //<![CDATA[
 
@@ -1612,7 +1606,13 @@ $(function(){
         }
         return options;
     }, 'submit');
-    $('#playpen-textarea').tabby({tabString: '    '}).autoResize().keydown();
+    var dConfig = $.fn.dialogbox.config(), taContents = '{\n';
+    $.each(dConfig, function(i, v) {
+        var val = typeof v === 'string' ? "'" + v + "'" : v.toString().replace(/\n/, '');
+        taContents += '    ' + i + ': ' + val + ',\n';
+    });
+    taContents += '}';
+    $('#playpen-textarea').val(taContents).tabby({tabString: '    '}).autoResize().keydown();
 });
 
 function alert(message) {

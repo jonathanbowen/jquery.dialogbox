@@ -8,32 +8,34 @@
      * Box configuration settings
      */
         Config = {
-            cancel: $.noop,
-            cancelText: 'Cancel',
-            className: '',
-            close: $.noop,
-            closeOnBlur: false,
-            confirm: $.noop,
-            draggable: true,
-            easing: 'swing',
-            fading: $.browser.msie ? 0 : 'fast',
-            focus: false,
-            loadbar: false,
-            maskOpacity: 0.3,
-            message: '',
-            morphing: 'fast',
-            okText: 'Ok',
-            open: $.noop,
-            position: 'center',
-            preventDefault: true,
-            stopPropagation: true,
-            promptText: '',
-            promptType: 'text',
-            restore: true,
-            title: '',
-            type: 'alert',
-            shakes: true,
-            width: 270
+            cancel: $.noop,                        // callback function when cancel button clicked
+            cancelText: 'Cancel',                  // text of cancel button
+            className: '',                         // class name added to box and background mask
+            close: $.noop,                         // callback function after box has been closed
+            closeOnBlur: false,                    // whether the box can be closed by clicking/focussing away
+            confirm: $.noop,                       // callback function when confirm button is clicked
+            draggable: true,                       // whether the box can be dragged around the viewport
+            dragStart: $.noop,                     // callback function when box is dragged
+            dragStop: $.noop,                      // callback function when box is dropped
+            easing: 'swing',                       // easing type
+            fading: $.browser.msie ? 0 : 'fast',   // fade duration when box is faded in and out
+            focus: false,                          // form element to be initially focussed (css selector)
+            loadbar: false,                        // whether to add a loading indicator
+            maskOpacity: 0.3,                      // opacity of background mask
+            message: '',                           // box contents - string, jQuery object or DOM element
+            morphing: 'fast',                      // animation duration when box moves or changes size
+            okText: 'Ok',                          // text of confirm button
+            open: $.noop,                          // callback function before box is opened
+            position: 'center',                    // position of box in the page (string or 2-element array)
+            preventDefault: true,                  // whether to prevent default action of box-triggering event
+            stopPropagation: true,                 // whether to prevent box-triggering event from bubbling
+            promptText: '',                        // for prompt boxes, initial text of prompt input
+            promptType: 'text',                    // for prompt boxes, input type (only text or password)
+            restore: true,                         // whether to restore message to the page when box is closed
+            title: '',                             // text of title bar
+            type: 'alert',                         // box type - alert, confirm or prompt
+            shakes: true,                          // whether to shake box if user clicks away
+            width: 270                             // box width
         },
     /**
      * Variables for storing current box state - only accessed internally
@@ -342,24 +344,7 @@
         }, Current.options.morphing, Current.options.easing, $.fn.dialogbox.focus);
 
         addEvents();
-        
-        if (Current.options.draggable) {
-
-            // when box is dragged, need to set position: absolute for chrome/safari,
-            // as they seem to be calculating offset as if box is positioned absolutely
-            // which can move the box outside of the viewport
-            outer.simpleDrag({
-                handle: '#dialogbox_handle',
-                start: function() {
-                    Current.dragging = true;
-                },
-                stop: function() {
-                    Current.dragging = false;
-                    $.fn.dialogbox.adjustPosition();
-                    storeDimensions();
-                }
-            });
-        }
+        setDrag(Current.options.draggable);
         
         if (Current.options.loadbar) {
             $.fn.dialogbox.addLoadbar();
@@ -684,6 +669,12 @@
                     $(fields[0])
                 );
             Current.focussed.focus();
+            // blinking ie moves cursor to beginning of input, so move it to last character
+            if (document.selection) {
+                var range = Current.focussed[0].createTextRange();
+                range.move('character', Current.focussed.val().length);
+                range.select();
+            }
         }
         return this;
     };
@@ -715,10 +706,6 @@
      */
     function addEvents() {
         
-        $('#dialobox_mask, #dialogbox_cancel').unbind();
-        $('#dialogbox_outer').unbind('submit');
-        $('#dialogbox_outer').unbind('keydown');
-        
         var outer = $('#dialogbox_outer'),
             id = setId(),
             fields = outer.find('input:visible, select:visible, textarea:visible, button:visible'),
@@ -746,32 +733,36 @@
         Current.onCancel = Current.options.type !== 'alert' ? cancel : confirm;
         var unfocus = Current.options.closeOnBlur ? Current.onCancel : $.fn.dialogbox.shake;
         
-        outer.submit(confirm);
+        outer.unbind('submit.dialogbox keydown.dialogbox')
+            .bind('submit.dialogbox', confirm)
+            .bind('keydown.dialogbox', keydown);
                  
-        fields.unbind('focus')
-            .unbind('blur')
-            .unbind('mouseover')
-            .unbind('mouseout')
-            .removeClass('dialogbox_focus')
-            .focus(function() {
+        fields.unbind('focus.dialogbox blur.dialogbox mouseenter.dialogbox mouseleave.dialogbox')
+            .bind('focus.dialogbox', function() {
                 Current.focussed = $(this).addClass('dialogbox_focus');
-            }).blur(function() {
+            })
+            .bind('blur.dialogbox', function() {
                 $(this).removeClass('dialogbox_focus');
-            }).mouseover(function() {
+            })
+            .bind('mouseenter.dialogbox', function() {
                 $(this).addClass('dialogbox_hover');
-            }).mouseout(function() {
+            })
+            .bind('mouseleave.dialogbox', function() {
                 $(this).removeClass('dialogbox_hover');
             });
 
-        $('#dialogbox_cancel').click(cancel); 
-        outer.keydown(keydown);
-        $(document).keydown($.fn.dialogbox.focus);
-        $('#dialogbox_mask').mousedown(unfocus);
-        $('body').children('*[id!=dialogbox_outer]').focusin(unfocus);
+        $('#dialogbox_cancel').unbind('click.dialogbox')
+            .bind('click.dialogbox', cancel);
+        $(document).unbind('keydown.dialogbox')
+            .bind('keydown.dialogbox', $.fn.dialogbox.focus);
+        $('#dialogbox_mask').unbind('mousedown.dialogbox')
+            .bind('mousedown.dialogbox', unfocus);
+        $('body').children('*[id!=dialogbox_outer]').unbind('focusin.dialogbox')
+            .bind('focusin.dialogbox', unfocus);
     }
     
     /**
-     * restore box message to its original location in the DOM
+     * Restore box message to its original location in the DOM
      */
     function restore() {
 
@@ -831,7 +822,7 @@
     }
     
     /**
-     * Store box dimensions for use in animations
+     * Store box dimensions and position for use in animations
      */
     function storeDimensions() {
 
@@ -850,6 +841,77 @@
     
         Current.options.preventDefault && e.preventDefault();
         Current.options.stopPropagation && e.stopPropagation();
+    }
+    
+    /**
+     * Set box draggability
+     * @param {Boolean} drag whether to make the box draggable
+     */
+    function setDrag(drag) {
+    
+        var x = 0,
+            y = 0,
+            win = $(window),
+            doc = $(document),
+            box = $('#dialogbox_outer'),
+            handle = $('#dialogbox_handle'),
+            stopSelect = function() {
+                if (Current.dragging) return false;
+            };
+    
+        handle.unbind('mousedown.dialogbox');
+        doc.unbind('mousedown.dialogbox selectstart.dialogbox mouseup.dialogbox mousemove.dialogbox');
+        
+        if (!drag) return;
+        
+        handle.bind('mousedown.dialogbox', function(e) {
+            x = e.pageX;
+            y = e.pageY;
+            Current.dragging = true;
+            typeof Current.options.dragStart === 'function' && Current.options.dragStart($.fn.dialogbox, Current.srcEvent);
+        });
+        
+        doc.bind('mousedown.dialogbox', stopSelect)   // regular browsers
+        .bind('selectstart.dialogbox', stopSelect) // ie
+        .bind('mouseup.dialogbox', function() {
+        
+            if (!Current.dragging) return;
+            typeof Current.options.dragStop === 'function' && Current.options.dragStop($.fn.dialogbox, Current.srcEvent);
+            Current.dragging = false;
+            $.fn.dialogbox.adjustPosition(); // shouldn't be needed, but just in case
+            storeDimensions();
+        })
+        .bind('mousemove.dialogbox', function(e) {
+ 
+            if (!Current.dragging) return;
+            
+            var xpos = e.pageX,
+                ypos = e.pageY,
+                xOffset = xpos - x,
+                yOffset = ypos - y,
+                maxX = win.width() - box.outerWidth(),
+                maxY = (box.css('position') === 'fixed' ? win.height() : doc.height()) - box.outerHeight(),
+                cssX = (parseInt(box.css('left'), 10) + xOffset),
+                cssY = (parseInt(box.css('top'), 10) + yOffset);
+
+            if (cssX > maxX) {
+                xpos -= (cssX - maxX);
+                cssX = maxX;
+            } else if (cssX < 0) {
+                xpos -= cssX;
+                cssX = 0;
+            }
+            if (cssY > maxY) {
+                ypos -= (cssY - maxY);
+                cssY = maxY;
+            } else if (cssY < 0) {
+                ypos -= cssY;
+                cssY = 0;
+            }
+
+            x = xpos; y = ypos;
+            box.css({left:cssX + 'px',top:cssY + 'px'});
+        });
     }
 
 })(jQuery);

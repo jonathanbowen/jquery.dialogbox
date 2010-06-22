@@ -5,7 +5,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Tests</title>
-    <link rel="stylesheet" type="text/css" href="../jquery.dialogbox.0.2.css" />
+    <link rel="stylesheet" type="text/css" href="../jquery.dialogbox.css" />
     <style type="text/css">
         * html #dialogbox_message_inner div {
             height: 1%;
@@ -48,8 +48,7 @@
     </form>
     
 <script type="text/javascript" src="jquery-1.4.1.min.js"></script>
-<script type="text/javascript" src="jquery-ui-1.7.2.custom.min.js"></script>
-<script type="text/javascript" src="../jquery.dialogbox.0.2.js"></script>
+<script type="text/javascript" src="../jquery.dialogbox.js"></script>
 <script type="text/javascript">	//<![CDATA[(function($) {
     
 $(function() {

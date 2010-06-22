@@ -162,8 +162,7 @@ Include the stylesheet in the <head> section of the page:
 Add the scripts at the bottom of the page:
 
     <script type="text/javascript" src="jquery-1.4.min.js"></script>
-    <script type="text/javascript" src="jquery-ui-1.7.2.custom.min.js"></script>
-    <script type="text/javascript" src="dialogbox.js"></script>  
+    <script type="text/javascript" src="jquery.dialogbox.js"></script>  
 Attach a box to the click event of any element using the jQuery selector:
 
     $('a.help').dialogbox('Some helpful information.');
@@ -797,6 +796,14 @@ Checks whether there's currently a box in the page.
 
 Boolean true if there is a box, false otherwise.
 
+### reset()
+
+Simply resets all form fields to initial values.
+
+#### Returns
+
+$.fn.dialogbox
+
 ### config([options]) / config(option, [value])
 
 Get or set default options for new boxes.
@@ -811,6 +818,34 @@ Alternatively, a key/value pair can be passed to change a single option.
 
 If getting, the value of the selected option, or a key/value object of all
 options. If setting, returns $.fn.dialogbox.
+
+### shake([num])
+
+Give the box a shake and focus into last focussed field. This happens automatically when the user clicks away from the box; you shouldn't generally need to call it unless you're really on a mission to annoy your users. The box will not shake if the **shakes** option has been set to **false**.
+
+#### Arguments
+
+**num:** number of shakes.
+
+#### Returns
+
+$.fn.dialogbox
+
+### adjustPosition()
+
+Adjust box position if any part of it has moved outside of the viewport. This is generally handled automatically, so there shouldn't be any need to call this unless the box has been directly manipulated.
+
+#### Returns
+
+$.fn.dialogbox
+
+### focus()
+
+Place focus into last focussed form element within the box.
+
+#### Returns
+
+$.fn.dialogbox
 
 ## Dependencies
 

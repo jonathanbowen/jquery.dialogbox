@@ -608,8 +608,7 @@
         Add the scripts at the bottom of the page:
     </p>
     <pre class="html">    &lt;script type="text/javascript" src="jquery-1.4.min.js"&gt;&lt;/script&gt;
-    &lt;script type="text/javascript" src="jquery-ui-1.7.2.custom.min.js"&gt;&lt;/script&gt;
-    &lt;script type="text/javascript" src="dialogbox.js"&gt;&lt;/script&gt;  </pre>
+    &lt;script type="text/javascript" src="jquery.dialogbox.js"&gt;&lt;/script&gt;  </pre>
 
     <p>Attach a box to the click event of any element using the jQuery selector:</p>
     <pre class="js">    $('a.help').dialogbox('Some helpful information.');</pre>
@@ -1196,20 +1195,53 @@
         <p>Boolean true if there is a box, false otherwise.</p>
         </div></div>
     </li>
+    <li>
+        <h3 id="function-reset">reset()</h3>
+        <div class="function-info"><div>
+        <p>Simply resets all form fields to initial values.</p>
+        <h4>Returns</h4>
+        <p>$.fn.dialogbox</p>
+        </div></div>
+    </li>
     
     <li> 
-       
-    <h3 id="function-config">config([options]) / config(option, [value])</h3> 
-    <div class="function-info"><div>
-    <p>Get or set default options for new boxes.</p> 
-    <h4>Arguments</h4>
-    <p>If a single arguement is used, this can be an object of key/value pairs of options to be set, or an option name
-    to retrieve the value of that option.</p>
-    <p>Alternatively, a key/value pair can be passed to change a single option.</p>
-    <h4>Returns</h4>
-    <p>If getting, the value of the selected option, or a key/value object of all
-    options. If setting, returns $.fn.dialogbox.</p>
-    </div></div>
+        <h3 id="function-config">config([options]) / config(option, [value])</h3> 
+        <div class="function-info"><div>
+        <p>Get or set default options for new boxes.</p> 
+        <h4>Arguments</h4>
+        <p>If a single arguement is used, this can be an object of key/value pairs of options to be set, or an option name
+        to retrieve the value of that option.</p>
+        <p>Alternatively, a key/value pair can be passed to change a single option.</p>
+        <h4>Returns</h4>
+        <p>If getting, the value of the selected option, or a key/value object of all
+        options. If setting, returns $.fn.dialogbox.</p>
+        </div></div>
+    </li>
+    <li>
+        <h3 id="function-shake">shake([num])</h3>
+        <div class="function-info"><div>
+        <p>Give the box a shake and focus into last focussed field. This happens automatically when the user clicks away from the box; you shouldn't generally need to call it unless you're really on a mission to annoy your users. The box will not shake if the <a href="#option-shakes">shakes</a> option has been set to <strong>false</strong>.</p>
+        <h4>Arguments</h4>
+        <p><strong>num:</strong> number of shakes.</p>
+        <h4>Returns</h4>
+        <p>$.fn.dialogbox</p>
+        </div></div>
+    </li>
+    <li>
+        <h3 id="function-adjustpositon">adjustPosition()</h3>
+        <div class="function-info"><div>
+        <p>Adjust box position if any part of it has moved outside of the viewport. This is generally handled automatically, so there shouldn't be any need to call this unless the box has been directly manipulated.</p>
+        <h4>Returns</h4>
+        <p>$.fn.dialogbox</p>
+        </div></div>
+    </li>
+    <li>
+        <h3 id="function-focus">focus()</h3>
+        <div class="function-info"><div>
+        <p>Place focus into last focussed form element within the box.</p>
+        <h4>Returns</h4>
+        <p>$.fn.dialogbox</p>
+        </div></div>
     </li>
     
     </ul>
